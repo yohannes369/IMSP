@@ -103,6 +103,7 @@
 // }
 
 // module.exports = { sendVerificationEmail, sendVerificationSuccessEmail, sendTwoFactorCodeEmail };
+
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
@@ -123,7 +124,7 @@ async function sendVerificationEmail(email, code) {
 
   console.log(`📧 Preparing to send verification code to: ${email}, code: ${code}`);
 
-  const appName = 'Bonga University GCVS';
+  const appName = 'Bonga University IMS';
   const mailOptions = {
     from: `"${appName}" <${process.env.EMAIL_USER}>`,
     to: email.trim(),
@@ -154,7 +155,7 @@ async function sendVerificationSuccessEmail(email) {
 
   console.log(`📧 Preparing to send verification success email to: ${email}`);
 
-  const appName = 'Bonga University GCVS';
+  const appName = 'Bonga University IMS';
   const mailOptions = {
     from: `"${appName}" <${process.env.EMAIL_USER}>`,
     to: email.trim(),
@@ -182,7 +183,7 @@ async function sendTwoFactorCodeEmail(email, code) {
 
   console.log(`📧 Sending 2FA code to: ${email}, code: ${code}`);
 
-  const appName = 'Bonga University GCVS';
+  const appName = 'Bonga University IMS';
   const mailOptions = {
     from: `"${appName} Security Team" <${process.env.EMAIL_USER}>`,
     to: email.trim(),
