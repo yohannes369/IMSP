@@ -47,7 +47,244 @@
 // };
 
 // export default Verify2FA;
-import React, { useState, useRef } from "react";
+
+// import React, { useState, useRef } from "react";
+// import { useLocation, useNavigate } from "react-router-dom";
+// import axios from "axios";
+
+// const BASE_URL = "http://localhost:5000/api/auth";
+
+// const Verify2FA = () => {
+//   const location = useLocation();
+//   const navigate = useNavigate();
+//   const email = location.state?.email || "";
+
+//   // Use an array to hold each digit of the 6-digit code
+//   const [code, setCode] = useState(new Array(6).fill(""));
+//   const [message, setMessage] = useState("");
+
+//   // Create refs to manage focus for each input
+//   const inputsRef = useRef([]);
+
+//   // Handle input change, only allow numbers, move focus automatically
+//   const handleChange = (element, index) => {
+//     if (!/^\d*$/.test(element.value)) return; // allow only digits or empty
+
+//     const newCode = [...code];
+//     newCode[index] = element.value;
+//     setCode(newCode);
+
+//     // Focus next input if current has a digit and next exists
+//     if (element.value && index < 5) {
+//       inputsRef.current[index + 1].focus();
+//     }
+//   };
+
+//   // Handle backspace to move focus back and clear
+//   const handleKeyDown = (e, index) => {
+//     if (e.key === "Backspace" && !code[index] && index > 0) {
+//       const newCode = [...code];
+//       newCode[index - 1] = "";
+//       setCode(newCode);
+//       inputsRef.current[index - 1].focus();
+//     }
+//   };
+
+//   const handleVerify = async (e) => {
+//     e.preventDefault();
+//     const fullCode = code.join("");
+//     if (fullCode.length < 6) {
+//       setMessage("Please enter all 6 digits.");
+//       return;
+//     }
+//     try {
+//       const { data } = await axios.post(`${BASE_URL}/verify-2fa`, {
+//         email,
+//         code: fullCode,
+//       });
+//       setMessage("2FA verified! Redirecting...");
+//       setTimeout(() => navigate("/dashboard"), 1000);
+//     } catch (error) {
+//       setMessage(error.response?.data?.message || "Invalid 2FA code.");
+//     }
+//   };
+
+//   return (
+//     <div className="max-w-md mx-auto p-8 mt-16 bg-white rounded-lg shadow-lg text-center">
+//       <h2 className="text-2xl font-bold mb-4 text-gray-800">Enter 2FA Code</h2>
+//       <p className="mb-6 text-gray-600">A 6-digit code has been sent to your email:</p>
+//       <p className="mb-8 font-semibold text-indigo-600 break-words">{email}</p>
+
+//       <form onSubmit={handleVerify}>
+//         <div className="flex justify-center gap-3 mb-6">
+//           {code.map((digit, index) => (
+//             <input
+//               key={index}
+//               type="text"
+//               inputMode="numeric"
+//               maxLength={1}
+//               className="w-12 h-12 text-center text-xl rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+//               value={digit}
+//               onChange={(e) => handleChange(e.target, index)}
+//               onKeyDown={(e) => handleKeyDown(e, index)}
+//               ref={(el) => (inputsRef.current[index] = el)}
+//               autoComplete="one-time-code"
+//             />
+//           ))}
+//         </div>
+
+//         <button
+//           type="submit"
+//           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded transition"
+//         >
+//           Verify
+//         </button>
+//       </form>
+
+//       {message && (
+//         <p
+//           className={`mt-6 font-medium ${
+//             message.toLowerCase().includes("invalid") ? "text-red-600" : "text-green-600"
+//           }`}
+//           role="alert"
+//         >
+//           {message}
+//         </p>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default Verify2FA;
+
+// corect one
+
+// import React, { useState, useRef, useEffect } from "react";
+// import { useLocation, useNavigate } from "react-router-dom";
+// import axios from "axios";
+
+// const BASE_URL = "http://localhost:5000/api/auth";
+
+// const Verify2FA = () => {
+//   const location = useLocation();
+//   const navigate = useNavigate();
+//   const email = location.state?.email;
+
+//   const [code, setCode] = useState(new Array(6).fill(""));
+//   const [message, setMessage] = useState("");
+//   const inputsRef = useRef([]);
+
+//   // ✅ Redirect if no email passed
+//   useEffect(() => {
+//     if (!email) {
+//       navigate("/login");
+//     }
+//   }, [email, navigate]);
+
+//   const handleChange = (element, index) => {
+//     if (!/^\d*$/.test(element.value)) return;
+
+//     const newCode = [...code];
+//     newCode[index] = element.value;
+//     setCode(newCode);
+
+//     if (element.value && index < 5) {
+//       inputsRef.current[index + 1].focus();
+//     }
+//   };
+
+//   const handleKeyDown = (e, index) => {
+//     if (e.key === "Backspace" && !code[index] && index > 0) {
+//       const newCode = [...code];
+//       newCode[index - 1] = "";
+//       setCode(newCode);
+//       inputsRef.current[index - 1].focus();
+//     }
+//   };
+
+//   const handleVerify = async (e) => {
+//     e.preventDefault();
+//     const fullCode = code.join("");
+
+//     if (fullCode.length < 6) {
+//       setMessage("⚠️ Please enter all 6 digits.");
+//       return;
+//     }
+
+//     try {
+//       const res = await axios.post(`${BASE_URL}/verify-2fa`, {
+//         email,
+//         code: fullCode,
+//       });
+
+//       const { token, user } = res.data;
+
+//       // ✅ Save token to localStorage
+//       localStorage.setItem("token", token);
+//       localStorage.setItem("user", JSON.stringify(user));
+
+//       setMessage("✅ 2FA verified! Redirecting...");
+
+//       setTimeout(() => {
+//         navigate("/dashboard");
+//       }, 1000);
+//     } catch (error) {
+//       setMessage(error.response?.data?.message || "❌ Invalid 2FA code.");
+//     }
+//   };
+
+//   return (
+//     <div className="max-w-md mx-auto p-8 mt-16 bg-white rounded-lg shadow-lg text-center">
+//       <h2 className="text-2xl font-bold mb-4 text-gray-800">Enter 2FA Code</h2>
+//       <p className="mb-6 text-gray-600">A 6-digit code was sent to your email:</p>
+//       <p className="mb-8 font-semibold text-indigo-600 break-words">{email}</p>
+
+//       <form onSubmit={handleVerify}>
+//         <div className="flex justify-center gap-3 mb-6">
+//           {code.map((digit, index) => (
+//             <input
+//               key={index}
+//               type="text"
+//               inputMode="numeric"
+//               maxLength={1}
+//               className="w-12 h-12 text-center text-xl rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+//               value={digit}
+//               onChange={(e) => handleChange(e.target, index)}
+//               onKeyDown={(e) => handleKeyDown(e, index)}
+//               ref={(el) => (inputsRef.current[index] = el)}
+//               autoComplete="one-time-code"
+//             />
+//           ))}
+//         </div>
+
+//         <button
+//           type="submit"
+//           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded transition"
+//         >
+//           Verify
+//         </button>
+//       </form>
+
+//       {message && (
+//         <p
+//           className={`mt-6 font-medium ${
+//             message.includes("Invalid") || message.includes("⚠️") || message.includes("❌")
+//               ? "text-red-600"
+//               : "text-green-600"
+//           }`}
+//           role="alert"
+//         >
+//           {message}
+//         </p>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default Verify2FA;
+
+
+import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -56,30 +293,33 @@ const BASE_URL = "http://localhost:5000/api/auth";
 const Verify2FA = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const email = location.state?.email || "";
+  const email = location.state?.email;
 
-  // Use an array to hold each digit of the 6-digit code
   const [code, setCode] = useState(new Array(6).fill(""));
   const [message, setMessage] = useState("");
-
-  // Create refs to manage focus for each input
+  const [loading, setLoading] = useState(false);
   const inputsRef = useRef([]);
 
-  // Handle input change, only allow numbers, move focus automatically
+  // Redirect to login if no email is passed (invalid access)
+  useEffect(() => {
+    if (!email) {
+      navigate("/login");
+    }
+  }, [email, navigate]);
+
   const handleChange = (element, index) => {
-    if (!/^\d*$/.test(element.value)) return; // allow only digits or empty
+    if (!/^\d*$/.test(element.value)) return; // Only digits allowed
 
     const newCode = [...code];
     newCode[index] = element.value;
     setCode(newCode);
 
-    // Focus next input if current has a digit and next exists
+    // Focus next input if value entered
     if (element.value && index < 5) {
       inputsRef.current[index + 1].focus();
     }
   };
 
-  // Handle backspace to move focus back and clear
   const handleKeyDown = (e, index) => {
     if (e.key === "Backspace" && !code[index] && index > 0) {
       const newCode = [...code];
@@ -91,27 +331,61 @@ const Verify2FA = () => {
 
   const handleVerify = async (e) => {
     e.preventDefault();
+    setMessage("");
+    setLoading(true);
+
     const fullCode = code.join("");
     if (fullCode.length < 6) {
-      setMessage("Please enter all 6 digits.");
+      setMessage("⚠️ Please enter all 6 digits.");
+      setLoading(false);
       return;
     }
+
     try {
-      const { data } = await axios.post(`${BASE_URL}/verify-2fa`, {
+      const res = await axios.post(`${BASE_URL}/verify-2fa`, {
         email,
         code: fullCode,
       });
-      setMessage("2FA verified! Redirecting...");
-      setTimeout(() => navigate("/dashboard"), 1000);
+
+      const { token, user } = res.data;
+
+      // Save token, role, and user info
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", user.role);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      setMessage("✅ 2FA verified! Redirecting...");
+
+      // Redirect based on role after 1 second
+      setTimeout(() => {
+        switch (user.role) {
+          case "admin":
+            navigate("/admin");
+            break;
+          case "manager":
+            navigate("/manager");
+            break;
+          case "clerk":
+            navigate("/clerk");
+            break;
+          case "staff":
+            navigate("/staff");
+            break;
+          default:
+            navigate("/unauthorized");
+        }
+      }, 1000);
     } catch (error) {
-      setMessage(error.response?.data?.message || "Invalid 2FA code.");
+      setMessage(error.response?.data?.message || "❌ Invalid 2FA code.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="max-w-md mx-auto p-8 mt-16 bg-white rounded-lg shadow-lg text-center">
       <h2 className="text-2xl font-bold mb-4 text-gray-800">Enter 2FA Code</h2>
-      <p className="mb-6 text-gray-600">A 6-digit code has been sent to your email:</p>
+      <p className="mb-6 text-gray-600">A 6-digit code was sent to your email:</p>
       <p className="mb-8 font-semibold text-indigo-600 break-words">{email}</p>
 
       <form onSubmit={handleVerify}>
@@ -128,22 +402,28 @@ const Verify2FA = () => {
               onKeyDown={(e) => handleKeyDown(e, index)}
               ref={(el) => (inputsRef.current[index] = el)}
               autoComplete="one-time-code"
+              disabled={loading}
             />
           ))}
         </div>
 
         <button
           type="submit"
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded transition"
+          disabled={loading}
+          className={`w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded transition ${
+            loading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
-          Verify
+          {loading ? "Verifying..." : "Verify"}
         </button>
       </form>
 
       {message && (
         <p
           className={`mt-6 font-medium ${
-            message.toLowerCase().includes("invalid") ? "text-red-600" : "text-green-600"
+            message.includes("Invalid") || message.includes("⚠️") || message.includes("❌")
+              ? "text-red-600"
+              : "text-green-600"
           }`}
           role="alert"
         >

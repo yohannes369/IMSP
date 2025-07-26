@@ -1,16 +1,190 @@
+// const db = require('../config/db'); // Your MySQL connection
+// const bcrypt = require('bcrypt');
+
+// const UserModel = {
+//   // Create new user
+//   async createUser({ firstName, lastName, email, password, gender, phone, code }) {
+//     const hashedPassword = await bcrypt.hash(password, 10);
+//     const query = `
+//       INSERT INTO users (firstName, lastName, email, password, gender, phone, is_verified, verification_code, role)
+//       VALUES (?, ?, ?, ?, ?, ?, 0, ?, 'user')
+//     `;
+//     const [result] = await db.query(query, [firstName, lastName, email, hashedPassword, gender, phone, code]);
+//     return result.insertId;
+//   },
+
+//   // Find user by email
+//   async findByEmail(email) {
+//     const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+//     return rows[0];
+//   },
+
+//   // Update verification code
+//   async updateVerificationCode(email, code) {
+//     const query = `UPDATE users SET verification_code = ? WHERE email = ?`;
+//     await db.query(query, [code, email]);
+//   },
+
+//   // Mark user as verified
+//   async verifyUser(email) {
+//     const query = `UPDATE users SET is_verified = 1, verification_code = NULL WHERE email = ?`;
+//     await db.query(query, [email]);
+//   },
+
+//   // Update 2FA code
+//   async updateTwoFactor(email, code, expiresAt) {
+//     const query = `UPDATE users SET two_factor_code = ?, two_factor_expires = ? WHERE email = ?`;
+//     await db.query(query, [code, expiresAt, email]);
+//   },
+
+//   // Clear 2FA
+//   async clearTwoFactor(email) {
+//     const query = `UPDATE users SET two_factor_code = NULL, two_factor_expires = NULL WHERE email = ?`;
+//     await db.query(query, [email]);
+//   },
+
+//   // Set password reset code
+//   async setPasswordResetCode(email, code, expiresAt) {
+//     const query = `UPDATE users SET password_reset_code = ?, password_reset_expires = ? WHERE email = ?`;
+//     await db.query(query, [code, expiresAt, email]);
+//   },
+
+//   // Reset password
+//   async resetPassword(email, newPassword) {
+//     const hashedPassword = await bcrypt.hash(newPassword, 10);
+//     const query = `UPDATE users SET password = ?, password_reset_code = NULL, password_reset_expires = NULL WHERE email = ?`;
+//     await db.query(query, [hashedPassword, email]);
+//   }
+// };
+
+// module.exports = UserModel;
+
+
+
+//correct one
+
+// const db = require('../config/db'); // Your MySQL connection
+// const bcrypt = require('bcrypt');
+
+// const UserModel = {
+//   // Create new user (regular signup)
+//   async createUser({ firstName, lastName, email, password, gender, phone, code }) {
+//     const hashedPassword = await bcrypt.hash(password, 10);
+//     const query = `
+//       INSERT INTO users (firstName, lastName, email, password, gender, phone, is_verified, verification_code, role)
+//       VALUES (?, ?, ?, ?, ?, ?, 0, ?, 'user')
+//     `;
+//     const [result] = await db.query(query, [firstName, lastName, email, hashedPassword, gender, phone, code]);
+//     return result.insertId;
+//   },
+
+//   // Create new user (Google OAuth signup)
+//   async createGoogleUser({ googleId, name, email, photo }) {
+//     // Split name into first and last name if possible
+//     const [firstName, ...lastNameParts] = name ? name.split(' ') : [''];
+//     const lastName = lastNameParts.join(' ') || '';
+
+//     const query = `
+//       INSERT INTO users (googleId, firstName, lastName, email, photo, is_verified, role)
+//       VALUES (?, ?, ?, ?, ?, 1, 'user')
+//     `;
+//     const [result] = await db.query(query, [googleId, firstName, lastName, email, photo]);
+//     return result.insertId;
+//   },
+
+//   // Find user by email OR googleId
+//   async findByEmailOrGoogleId(identifier) {
+//     const query = `
+//       SELECT * FROM users WHERE email = ? OR googleId = ?
+//     `;
+//     const [rows] = await db.query(query, [identifier, identifier]);
+//     return rows[0];
+//   },
+
+//   // Find user by email
+//   async findByEmail(email) {
+//     const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+//     return rows[0];
+//   },
+
+//   // Find user by Google ID
+//   async findByGoogleId(googleId) {
+//     const [rows] = await db.query('SELECT * FROM users WHERE googleId = ?', [googleId]);
+//     return rows[0];
+//   },
+
+//   // Update verification code
+//   async updateVerificationCode(email, code) {
+//     const query = `UPDATE users SET verification_code = ? WHERE email = ?`;
+//     await db.query(query, [code, email]);
+//   },
+
+//   // Mark user as verified
+//   async verifyUser(email) {
+//     const query = `UPDATE users SET is_verified = 1, verification_code = NULL WHERE email = ?`;
+//     await db.query(query, [email]);
+//   },
+
+//   // Update 2FA code
+//   async updateTwoFactor(email, code, expiresAt) {
+//     const query = `UPDATE users SET two_factor_code = ?, two_factor_expires = ? WHERE email = ?`;
+//     await db.query(query, [code, expiresAt, email]);
+//   },
+
+//   // Clear 2FA
+//   async clearTwoFactor(email) {
+//     const query = `UPDATE users SET two_factor_code = NULL, two_factor_expires = NULL WHERE email = ?`;
+//     await db.query(query, [email]);
+//   },
+
+//   // Set password reset code
+//   async setPasswordResetCode(email, code, expiresAt) {
+//     const query = `UPDATE users SET password_reset_code = ?, password_reset_expires = ? WHERE email = ?`;
+//     await db.query(query, [code, expiresAt, email]);
+//   },
+
+//   // Reset password
+//   async resetPassword(email, newPassword) {
+//     const hashedPassword = await bcrypt.hash(newPassword, 10);
+//     const query = `UPDATE users SET password = ?, password_reset_code = NULL, password_reset_expires = NULL WHERE email = ?`;
+//     await db.query(query, [hashedPassword, email]);
+//   }
+// };
+
+// module.exports = UserModel;
 const db = require('../config/db'); // Your MySQL connection
 const bcrypt = require('bcrypt');
 
 const UserModel = {
-  // Create new user
-  async createUser({ firstName, lastName, email, password, gender, phone, code }) {
+  // Create new user (regular signup) with manual role
+  async createUser({ firstName, lastName, email, password, gender, phone, code, role }) {
     const hashedPassword = await bcrypt.hash(password, 10);
     const query = `
       INSERT INTO users (firstName, lastName, email, password, gender, phone, is_verified, verification_code, role)
-      VALUES (?, ?, ?, ?, ?, ?, 0, ?, 'user')
+      VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)
     `;
-    const [result] = await db.query(query, [firstName, lastName, email, hashedPassword, gender, phone, code]);
+    const [result] = await db.query(query, [firstName, lastName, email, hashedPassword, gender, phone, code, role]);
     return result.insertId;
+  },
+
+  // Create new user (Google OAuth signup) with manual role
+  async createGoogleUser({ googleId, name, email, photo, role }) {
+    const [firstName, ...lastNameParts] = name ? name.split(' ') : [''];
+    const lastName = lastNameParts.join(' ') || '';
+
+    const query = `
+      INSERT INTO users (googleId, firstName, lastName, email, photo, is_verified, role)
+      VALUES (?, ?, ?, ?, ?, 1, ?)
+    `;
+    const [result] = await db.query(query, [googleId, firstName, lastName, email, photo, role]);
+    return result.insertId;
+  },
+
+  // Find user by email OR googleId
+  async findByEmailOrGoogleId(identifier) {
+    const query = `SELECT * FROM users WHERE email = ? OR googleId = ?`;
+    const [rows] = await db.query(query, [identifier, identifier]);
+    return rows[0];
   },
 
   // Find user by email
@@ -19,41 +193,44 @@ const UserModel = {
     return rows[0];
   },
 
+  // Find user by Google ID
+  async findByGoogleId(googleId) {
+    const [rows] = await db.query('SELECT * FROM users WHERE googleId = ?', [googleId]);
+    return rows[0];
+  },
+
   // Update verification code
   async updateVerificationCode(email, code) {
-    const query = `UPDATE users SET verification_code = ? WHERE email = ?`;
-    await db.query(query, [code, email]);
+    await db.query(`UPDATE users SET verification_code = ? WHERE email = ?`, [code, email]);
   },
 
   // Mark user as verified
   async verifyUser(email) {
-    const query = `UPDATE users SET is_verified = 1, verification_code = NULL WHERE email = ?`;
-    await db.query(query, [email]);
+    await db.query(`UPDATE users SET is_verified = 1, verification_code = NULL WHERE email = ?`, [email]);
   },
 
   // Update 2FA code
   async updateTwoFactor(email, code, expiresAt) {
-    const query = `UPDATE users SET two_factor_code = ?, two_factor_expires = ? WHERE email = ?`;
-    await db.query(query, [code, expiresAt, email]);
+    await db.query(`UPDATE users SET two_factor_code = ?, two_factor_expires = ? WHERE email = ?`, [code, expiresAt, email]);
   },
 
   // Clear 2FA
   async clearTwoFactor(email) {
-    const query = `UPDATE users SET two_factor_code = NULL, two_factor_expires = NULL WHERE email = ?`;
-    await db.query(query, [email]);
+    await db.query(`UPDATE users SET two_factor_code = NULL, two_factor_expires = NULL WHERE email = ?`, [email]);
   },
 
   // Set password reset code
   async setPasswordResetCode(email, code, expiresAt) {
-    const query = `UPDATE users SET password_reset_code = ?, password_reset_expires = ? WHERE email = ?`;
-    await db.query(query, [code, expiresAt, email]);
+    await db.query(`UPDATE users SET password_reset_code = ?, password_reset_expires = ? WHERE email = ?`, [code, expiresAt, email]);
   },
 
   // Reset password
   async resetPassword(email, newPassword) {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    const query = `UPDATE users SET password = ?, password_reset_code = NULL, password_reset_expires = NULL WHERE email = ?`;
-    await db.query(query, [hashedPassword, email]);
+    await db.query(
+      `UPDATE users SET password = ?, password_reset_code = NULL, password_reset_expires = NULL WHERE email = ?`,
+      [hashedPassword, email]
+    );
   }
 };
 
