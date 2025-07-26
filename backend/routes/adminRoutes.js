@@ -10,6 +10,7 @@
 // router.post('/change-role', isAdmin, adminController.changeUserRole);
 
 // module.exports = router;
+
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
@@ -17,6 +18,9 @@ const adminController = require('../controllers/adminController');
 const verifyToken = require('../middlewares/verifyToken');
 const isAdmin = require('../middlewares/isAdmin');
 
+
+
+// Route to get all users
 router.post('/change-role', verifyToken, isAdmin, adminController.changeUserRole);
 
 module.exports = router;
