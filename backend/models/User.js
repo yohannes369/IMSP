@@ -1,28 +1,3 @@
-// const bcrypt = require('bcrypt');
-// const db = require('../config/db');
-
-// const User = {
-//   // ➕ Create Staff
-//   createStaff: async (email, password) => {
-//     const hashedPassword = await bcrypt.hash(password, 10);
-//     const sql = `
-//       INSERT INTO users (email, password, role, isActive)
-//       VALUES (?, ?, 'staff', true)
-//     `;
-//     const [result] = await db.execute(sql, [email, hashedPassword]);
-//     return result;
-//   },
-
-//   // 🔍 Find user by email
-//   findByEmail: async (email) => {
-//     const sql = 'SELECT * FROM users WHERE email = ? LIMIT 1';
-//     const [rows] = await db.execute(sql, [email]);
-//     return rows[0]; // return single user
-//   }
-// };
-
-// module.exports = User;
-
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
 
@@ -50,7 +25,43 @@ const User = {
     const [result] = await db.query('UPDATE users SET role = ? WHERE email = ?', [newRole, email]);
     return result;
   },
+  
+ 
 
+
+
+
+
+
+
+  async activateUser(id) {
+    const [result] = await db.query(
+      'UPDATE users SET isActive = true WHERE id = ?',
+      [id]
+    );
+    return result;
+  },
+
+  // Deactivate user by id
+  async deactivateUser(id) {
+    const [result] = await db.query(
+      'UPDATE users SET isActive = false WHERE id = ?',
+      [id]
+    );
+    return result;
+  },
+
+
+  // Create user with staff ID only
+async assignStaffId(staff_id) {
+  const query = 'INSERT INTO users (staff_id) VALUES (?)';
+  const [result] = await db.query(query, [staff_id]);
+  return result;
+},
+
+  
+
+  
   // ✅ Create Staff User
   async createStaff(email, password) {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -61,6 +72,10 @@ const User = {
     const [result] = await db.execute(sql, [email, hashedPassword]);
     return result;
   }
+
+
+  
+  
 };
 
 module.exports = User;

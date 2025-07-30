@@ -11,18 +11,43 @@
 
 // module.exports = router;
 
+// const express = require('express');
+// const router = express.Router();
+// const adminController = require('../controllers/adminController');
+
+// const verifyToken = require('../middlewares/verifyToken');
+// const isAdmin = require('../middlewares/isAdmin');
+
+
+
+// // Route to get all users
+// router.post('/change-role', verifyToken, isAdmin, adminController.changeUserRole);
+
+// module.exports = router;
+
+
+
+
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
 
-const verifyToken = require('../middlewares/verifyToken');
-const isAdmin = require('../middlewares/isAdmin');
+// POST /api/admin/change-role
+router.post('/change-role', adminController.changeUserRole);
+
+// GET /api/admin/users
+router.get('/users', adminController.getAllUsers);
 
 
+router.patch('/users/:id/activate', adminController.activateUser);
 
-// Route to get all users
-router.post('/change-role', verifyToken, isAdmin, adminController.changeUserRole);
+// Deactivate user (PATCH /api/admin/users/:id/deactivate)
+router.patch('/users/:id/deactivate', adminController.deactivateUser);
+// router.get('/me',  adminController.getPersonalInfo);
+
+// Assign staff_id to a staff user
+
+// Assign staff ID
+// router.post('/users/staffid', adminController.assignStaffId);
 
 module.exports = router;
-
-

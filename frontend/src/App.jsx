@@ -79,7 +79,11 @@ import AdminPage from "./pages/AdminPage";
 // import ManagerPage from "./pages/ManagerPage";
 import ClerkPage from "./pages/ClerkPage";
 import StaffPage from "./pages/StaffPage";
+import AddItemPage from './pages/AddItemPage';
+import UpdateItem from './pages/UpdateItem';
+import  ItemRequests from './pages/ItemRequests';
 
+import ManagerReview from './pages/manager/ManagerReview';
 const App = () => {
   return (
     <div style={{ padding: 20 }}>
@@ -103,6 +107,11 @@ const App = () => {
         {/* <Route path="/manager" element={<ManagerPage />} /> */}
         <Route path="/clerk" element={<ClerkPage />} />
         <Route path="/staff" element={<StaffPage />} />
+        <Route path="/add-item" element={<AddItemPage />} />
+  <Route path="/update-item/:id" element={<UpdateItem />} />
+        <Route path="/item-requests" element={<ItemRequests />} />  
+        <Route path="/manager" element={<ManagerReview />} />
+
       </Routes>
     </div>
   );

@@ -14,6 +14,7 @@ CREATE TABLE users (
   password_reset_expires DATETIME DEFAULT NULL,
   role ENUM('admin','manager','clerk','staff') DEFAULT 'staff',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
 );
 
 
@@ -271,3 +272,189 @@ export const logout = () => axios.post(`${API_URL}/logout`);
 └── README.md
 
 npm install -D tailwindcss@^3 autoprefixer@^10 postcss@^8
+
+
+
+
+Project ID: imsp-466818. It cannot be changed later.
+AIzaSyDXMaQEv81Qu1cNqGMJ-XbOOsKB4iZp1oo
+http://localhost:5000/api/auth/google/callback
+http://localhost:5173
+
+
+import React from 'react';
+
+export default function GoogleLoginButton() {
+  const handleLogin = () => {
+    window.location.href = 'http://localhost:5000/api/auth/google';
+  };
+
+  return (
+    <button
+      onClick={handleLogin}
+      className="px-4 py-2 bg-blue-600 text-white rounded"
+    >
+      Login with Google
+    </button>
+  );
+}
+
+
+
+id
+firstName
+lastName
+gender
+phone
+email
+password
+is_verified
+verification_code
+two_factor_code
+two_factor_expires
+password_reset_code
+password_reset_expires
+role
+created_at
+googleId
+photo
+
+C-- 1. Table to store unique item names
+CREATE TABLE item_names (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) UNIQUE NOT NULL
+);
+
+-- 2. Table to store individual items with serial numbers
+CREATE TABLE items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  serial_no VARCHAR(100) UNIQUE NOT NULL,
+  name_id INT NOT NULL,
+  description TEXT,
+  quantity INT NOT NULL DEFAULT 1,
+  is_available BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (name_id) REFERENCES item_names(id) ON DELETE CASCADE
+);
+
+
+
+
+
+
+
+
+// iuse 
+
+CREATE TABLE item_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  staff_id INT NOT NULL,              -- requester user id
+  staff_name VARCHAR(255) NOT NULL,
+  staff_email VARCHAR(255) NOT NULL,
+  item_type VARCHAR(255) NOT NULL,
+  item_serial VARCHAR(255),
+  quantity INT NOT NULL,
+  explanation TEXT,
+  status ENUM('pending_manager', 'rejected_manager', 'pending_clerk', 'rejected_clerk', 'approved') DEFAULT 'pending_manager',
+
+  manager_cause TEXT DEFAULT NULL,
+
+  clerk_cause TEXT DEFAULT NULL,
+  given_to_staff_at DATETIME DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (staff_id) REFERENCES users(id)
+);
+ 
+
+
+ correct
+ ALTER TABLE users
+ADD COLUMN staff_id VARCHAR(10) UNIQUE;
+
+
+CREATE TABLE item_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  staff_id VARCHAR(10) NOT NULL,
+  staff_name VARCHAR(255) NOT NULL,
+  staff_email VARCHAR(255) NOT NULL,
+  item_type VARCHAR(255) NOT NULL,
+  item_serial VARCHAR(255),
+  quantity INT NOT NULL,
+  explanation TEXT,
+  status ENUM('pending_manager', 'rejected_manager', 'pending_clerk', 'rejected_clerk', 'approved') DEFAULT 'pending_manager',
+  manager_cause TEXT DEFAULT NULL,
+  clerk_cause TEXT DEFAULT NULL,
+  given_to_staff_at DATETIME DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  
+  FOREIGN KEY (staff_id) REFERENCES users(staff_id)
+);
+
+
+
+CREATE TABLE item_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  staff_id VARCHAR(10) NOT NULL,
+  staff_name VARCHAR(255) NOT NULL,
+  staff_email VARCHAR(255) NOT NULL,
+  item_type VARCHAR(255) NOT NULL,
+  item_serial VARCHAR(255),
+  quantity INT NOT NULL,
+  explanation TEXT,
+  
+  manager_status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+  manager_cause TEXT DEFAULT NULL,
+  
+  clerk_status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+  clerk_cause TEXT DEFAULT NULL,
+  
+  given_to_staff_at DATETIME DEFAULT NULL,
+  
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  
+  FOREIGN KEY (staff_id) REFERENCES users(staff_id)
+);
+
+
+CREATE TABLE item_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  staff_id VARCHAR(10) NOT NULL,
+  staff_name VARCHAR(255) NOT NULL,
+  staff_email VARCHAR(255) NOT NULL,
+  item_type VARCHAR(255) NOT NULL,
+  item_serial VARCHAR(255),
+  quantity INT NOT NULL,
+  explanation TEXT,
+  
+  -- Manager approval section
+  manager_status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+  manager_decision_at DATETIME DEFAULT NULL,
+  manager_cause TEXT DEFAULT NULL,
+  manager_id VARCHAR(10) DEFAULT NULL,
+  manager_name VARCHAR(255) DEFAULT NULL,
+  
+  -- Clerk approval section
+  clerk_status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+  clerk_decision_at DATETIME DEFAULT NULL,
+  clerk_cause TEXT DEFAULT NULL,
+  clerk_id VARCHAR(10) DEFAULT NULL,
+  clerk_name VARCHAR(255) DEFAULT NULL,
+  
+  -- Item fulfillment section
+  given_to_staff_at DATETIME DEFAULT NULL,
+  given_by_id VARCHAR(10) DEFAULT NULL,
+  given_by_name VARCHAR(255) DEFAULT NULL,
+  
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  
+  FOREIGN KEY (staff_id) REFERENCES users(staff_id),
+  FOREIGN KEY (manager_id) REFERENCES users(staff_id),
+  FOREIGN KEY (clerk_id) REFERENCES users(staff_id),
+  FOREIGN KEY (given_by_id) REFERENCES users(staff_id)
+);

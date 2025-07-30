@@ -699,14 +699,110 @@ function addMinutes(ms) {
 }
 
 // ✅ Register with optional role
+// exports.register = async (req, res) => {
+//   try {
+//     const { firstName, lastName, email, password, gender, phone, role: inputRole } = req.body;
+
+//     if (!firstName || !lastName || !email || !password || !gender || !phone) {
+//       return res.status(400).json({ message: 'All required fields must be filled.' });
+//     }
+
+//     const existingUser = await User.findByEmail(email);
+//     if (existingUser) {
+//       if (existingUser.is_verified) {
+//         return res.status(400).json({ message: 'Email already registered and verified' });
+//       } else {
+//         const code = genCode6();
+//         await User.updateVerificationCode(email, code);
+//         await sendVerificationEmail(email, code);
+//         return res.status(200).json({ message: 'Verification code resent. Check your email.' });
+//       }
+//     }
+
+//     const allowedRoles = ['staff', 'admin', 'manager', 'stock-clerk'];
+//     const finalRole = allowedRoles.includes(inputRole) ? inputRole : 'staff';
+
+//     const code = genCode6();
+
+//     await User.createUser({
+//       firstName,
+//       lastName,
+//       email,
+//       password,
+//       gender,
+//       phone,
+//       role: finalRole,
+//       code
+//     });
+
+//     await sendVerificationEmail(email, code);
+//     res.status(201).json({ message: 'Registered successfully. Please verify your email.' });
+//   } catch (err) {
+//     console.error('❌ Register error:', err);
+//     res.status(500).json({ message: 'Server error', error: err.message });
+//   }
+// };
+
+// exports.register = async (req, res) => {
+//   try {
+//     const { firstName, lastName, email, password, gender, phone, role: inputRole, staff_id } = req.body;
+
+//     if (!firstName || !lastName || !email || !password || !gender || !phone || !staff_id) {
+//       return res.status(400).json({ message: 'All required fields must be filled.' });
+//     }
+
+//     const existingUser = await User.findByEmail(email);
+//     if (existingUser) {
+//       if (existingUser.is_verified) {
+//         return res.status(400).json({ message: 'Email already registered and verified' });
+//       } else {
+//         const code = genCode6();
+//         await User.updateVerificationCode(email, code);
+//         await sendVerificationEmail(email, code);
+//         return res.status(200).json({ message: 'Verification code resent. Check your email.' });
+//       }
+//     }
+
+//     const allowedRoles = ['staff', 'admin', 'manager', 'stock-clerk'];
+//     const finalRole = allowedRoles.includes(inputRole) ? inputRole : 'staff';
+
+//     const code = genCode6();
+
+//     await User.createUser({
+//       firstName,
+//       lastName,
+//       email,
+//       password,
+//       gender,
+//       phone,
+//       role: finalRole,
+//       code,
+//       staff_id  // add staffId here
+//     });
+
+//     await sendVerificationEmail(email, code);
+//     res.status(201).json({ message: 'Registered successfully. Please verify your email.' });
+//   } catch (err) {
+//     console.error('❌ Register error:', err);
+//     res.status(500).json({ message: 'Server error', error: err.message });
+//   }
+// };
+
 exports.register = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, gender, phone, role: inputRole } = req.body;
+    const { firstName, lastName, email, password, gender, phone, role: inputRole, staff_id } = req.body;
 
-    if (!firstName || !lastName || !email || !password || !gender || !phone) {
+    if (!firstName || !lastName || !email || !password || !gender || !phone || !staff_id) {
       return res.status(400).json({ message: 'All required fields must be filled.' });
     }
 
+    // Check if staff_id already exists
+    const existingStaffIdUser = await User.findByStaffId(staff_id);
+    if (existingStaffIdUser) {
+      return res.status(400).json({ message: 'Staff ID is taken, please use another' });
+    }
+
+    // Check if email already registered
     const existingUser = await User.findByEmail(email);
     if (existingUser) {
       if (existingUser.is_verified) {
@@ -732,7 +828,8 @@ exports.register = async (req, res) => {
       gender,
       phone,
       role: finalRole,
-      code
+      code,
+      staff_id,
     });
 
     await sendVerificationEmail(email, code);
@@ -762,6 +859,38 @@ exports.verifyEmail = async (req, res) => {
 };
 
 // ✅ Login Step 1: Send 2FA
+// exports.login = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+//     const user = await User.findByEmail(email);
+//     if (!user) return res.status(400).json({ message: 'Invalid credentials' });
+
+//     if (!user.is_verified) {
+//       return res.status(403).json({ message: 'Please verify your email first' });
+//     }
+
+//     if (!password || !user.password) {
+//       return res.status(400).json({ message: 'This account does not have a password. Please use Google login or contact admin.' });
+//     }
+
+//     const match = await bcrypt.compare(password, user.password);
+//     if (!match) return res.status(400).json({ message: 'Invalid credentials' });
+
+//     const twoCode = genCode6();
+//     await User.updateTwoFactor(email, twoCode, addMinutes(5 * 60 * 1000));
+//     await sendTwoFactorCodeEmail(email, twoCode);
+
+//     res.status(200).json({ message: '2FA code sent to your email', requires2FA: true });
+//   } catch (err) {
+//     console.error('❌ Login error:', err);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// };
+
+
+
+
+
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -770,6 +899,11 @@ exports.login = async (req, res) => {
 
     if (!user.is_verified) {
       return res.status(403).json({ message: 'Please verify your email first' });
+    }
+
+    // === Add this check to block deactivated accounts ===
+    if (!user.isActive) {
+      return res.status(403).json({ message: 'Your account is deactivated. Please contact admin.' });
     }
 
     if (!password || !user.password) {
@@ -789,6 +923,7 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 // ✅ Verify 2FA — returns token
 // exports.verify2FA = async (req, res) => {

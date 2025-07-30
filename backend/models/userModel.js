@@ -157,15 +157,49 @@ const bcrypt = require('bcrypt');
 
 const UserModel = {
   // Create new user (regular signup) with manual role
-  async createUser({ firstName, lastName, email, password, gender, phone, code, role }) {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const query = `
-      INSERT INTO users (firstName, lastName, email, password, gender, phone, is_verified, verification_code, role)
-      VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)
-    `;
-    const [result] = await db.query(query, [firstName, lastName, email, hashedPassword, gender, phone, code, role]);
-    return result.insertId;
-  },
+  // async createUser({ firstName, lastName, email, password, gender, phone, code, role }) {
+  //   const hashedPassword = await bcrypt.hash(password, 10);
+  //   const query = `
+  //     INSERT INTO users (firstName, lastName, email, password, gender, phone, is_verified, verification_code, role)
+  //     VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)
+  //   `;
+  //   const [result] = await db.query(query, [firstName, lastName, email, hashedPassword, gender, phone, code, role]);
+  //   return result.insertId;
+  // },
+  
+// async createUser({ firstName, lastName, email, password, gender, phone, code, role, staff_id }) {
+//   const hashedPassword = await bcrypt.hash(password, 10);
+//   const query = `
+//     INSERT INTO users (firstName, lastName, email, password, gender, phone, is_verified, verification_code, role, staff_id)
+//     VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
+//   `;
+//   const [result] = await db.query(query, [firstName, lastName, email, hashedPassword, gender, phone, code, role, staff_id]);
+//   return result.staff_id; 
+// },
+async createUser({ firstName, lastName, email, password, gender, phone, code, role, staff_id }) {
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const query = `
+    INSERT INTO users (firstName, lastName, email, password, gender, phone, is_verified, verification_code, role, staff_id)
+    VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
+  `;
+
+  const [result] = await db.query(query, [firstName, lastName, email, hashedPassword, gender, phone, code, role, staff_id]);
+
+  // Return the inserted primary key id (assuming 'id' is auto-increment PK in your users table)
+  // OR return submitted staff_id if that's what you prefer 
+  // Here returning both for example:
+
+  return {
+    insertId: result.insertId,  // numeric PK auto-generated
+    staff_id: staff_id          // provided staff_id string
+  };
+}
+,
+async findByStaffId(staff_id) {
+  const query = 'SELECT * FROM users WHERE staff_id = ? LIMIT 1';
+  const [rows] = await db.query(query, [staff_id]);
+  return rows[0]; // returns user object if found, else undefined
+},
 
   // Create new user (Google OAuth signup) with manual role
   async createGoogleUser({ googleId, name, email, photo, role }) {
