@@ -458,3 +458,20 @@ CREATE TABLE item_requests (
   FOREIGN KEY (clerk_id) REFERENCES users(staff_id),
   FOREIGN KEY (given_by_id) REFERENCES users(staff_id)
 );
+
+
+
+CREATE TABLE item_requests (
+  id SERIAL PRIMARY KEY,
+  staff_id VARCHAR(10) NOT NULL,
+  staff_name VARCHAR(255) NOT NULL,
+  staff_email VARCHAR(255) NOT NULL,
+  item_type VARCHAR(255) NOT NULL,
+  item_serial VARCHAR(255),
+  quantity INT NOT NULL,
+  explanation TEXT,
+  status VARCHAR(20) DEFAULT 'pending_manager',
+  manager_comment TEXT,
+  clerk_comment TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

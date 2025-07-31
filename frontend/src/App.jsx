@@ -83,7 +83,16 @@ import AddItemPage from './pages/AddItemPage';
 import UpdateItem from './pages/UpdateItem';
 import  ItemRequests from './pages/ItemRequests';
 
-import ManagerReview from './pages/manager/ManagerReview';
+// import ManagerReview from './pages/manager/ManagerReview';
+
+
+
+
+
+import StaffRequestForm from './components/StaffRequestForm';
+import StaffRequestStatus from './components/StaffRequestStatus';
+import ManagerReview from './components/ManagerReview';
+import ClerkReview from './components/ClerkReview';
 const App = () => {
   return (
     <div style={{ padding: 20 }}>
@@ -111,6 +120,16 @@ const App = () => {
   <Route path="/update-item/:id" element={<UpdateItem />} />
         <Route path="/item-requests" element={<ItemRequests />} />  
         <Route path="/manager" element={<ManagerReview />} />
+
+
+
+
+
+        <Route path="/staff-request-form" element={<StaffRequestForm />} />
+        <Route path="/staff-request-status" element={<StaffRequestStatus />} />
+        <Route path="/manager-review" element={<ManagerReview />} />
+        <Route path="/clerk-review" element={<ClerkReview />} />  
+
 
       </Routes>
     </div>

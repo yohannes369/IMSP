@@ -50,9 +50,11 @@ const authRoutes = require('./routes/authRoutes');
 // const staffRoutes = require('./routes/staffRoutes'); // ✅ Add staff routes
 const adminRoutes = require("./routes/adminRoutes" )// ✅ Add admin routes
 const itemRoutes = require('./routes/itemRoutes'); // ✅ Add item routes
-const itemRequestRoutes = require('./routes/itemRequestRoutes');
+// const itemRequestRoutes = require('./routes/itemRequestRoutes');
 
-const managerRoutes = require('./routes/managerRoutes');
+// const managerRoutes = require('./routes/managerRoutes');
+const requestRoutes = require('./routes/requestRoutes');
+
 require('dotenv').config();
 
 const app = express();
@@ -83,8 +85,9 @@ app.use(passport.session());
 app.use('/api/auth', authRoutes);   // e.g., login, register, Google OAuth
 app.use('/api/admin', adminRoutes); // ✅ Admin actions: create user, assign role, activate/deactivate
 app.use('/api/items', itemRoutes);
-app.use('/api/item-requests', itemRequestRoutes);
-app.use('/api/manager', managerRoutes);
+// app.use('/api/item-requests', itemRequestRoutes);
+// app.use('/api/manager', managerRoutes);
+app.use('/api', requestRoutes);
 // ✅ Server start
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
