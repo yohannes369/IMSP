@@ -67,7 +67,7 @@ const ManagerReview = () => {
     <div>
       <h2>Manager Review</h2>
 
-      <div>
+      {/* <div>
         <label>Request ID:</label>
         <input type="text" value={currentRequest.id} disabled />
       </div>
@@ -75,6 +75,11 @@ const ManagerReview = () => {
       <div>
         <label>Staff ID:</label>
         <input type="text" value={currentRequest.staff_id} disabled />
+      </div> */}
+          
+ <div>
+        <label>Staff name:</label>
+        <input type="text" value={currentRequest.staff_name} disabled />
       </div>
 
       <div>

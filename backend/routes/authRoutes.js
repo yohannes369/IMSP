@@ -24,39 +24,39 @@
 // corect
 
 
-const express = require('express');
-const router = express.Router();
-const passport = require('passport');
-const authController = require('../controllers/authController');
+// const express = require('express');
+// const router = express.Router();
+// const passport = require('passport');
+// const authController = require('../controllers/authController');
 
-// Your existing routes...
-router.post('/register', authController.register);
-router.post('/verify-email', authController.verifyEmail);
-router.post('/login', authController.login);
-router.post('/verify-2fa', authController.verify2FA);
-router.post('/forgot-password', authController.forgotPassword);
-router.post('/reset-password', authController.resetPassword);
-router.post('/logout', authController.logout);
+// // Your existing routes...
+// router.post('/register', authController.register);
+// router.post('/verify-email', authController.verifyEmail);
+// router.post('/login', authController.login);
+// router.post('/verify-2fa', authController.verify2FA);
+// router.post('/forgot-password', authController.forgotPassword);
+// router.post('/reset-password', authController.resetPassword);
+// router.post('/logout', authController.logout);
 
-// Google OAuth routes with forced account/email selection
-router.get(
-  '/google',
-  passport.authenticate('google', {
-    scope: ['profile', 'email'],
-    prompt: 'select_account',  // << This forces Google to show email chooser every time
-  })
-);
+// // Google OAuth routes with forced account/email selection
+// router.get(
+//   '/google',
+//   passport.authenticate('google', {
+//     scope: ['profile', 'email'],
+//     prompt: 'select_account',  // << This forces Google to show email chooser every time
+//   })
+// );
 
-router.get(
-  '/google/callback',
-  passport.authenticate('google', {
-    failureRedirect: 'http://localhost:5173/login',
-    successRedirect: 'http://localhost:5173/dashboard',
-    session: false,
-  })
-);
+// router.get(
+//   '/google/callback',
+//   passport.authenticate('google', {
+//     failureRedirect: 'http://localhost:5173/login',
+//     successRedirect: 'http://localhost:5173/dashboard',
+//     session: false,
+//   })
+// );
 
-module.exports = router;
+// module.exports = router;
 
 // const express = require('express');
 // const router = express.Router();
@@ -98,3 +98,102 @@ module.exports = router;
 
 // module.exports = router;
 
+// routes/authRoutes.js
+
+// const express = require('express');
+// const router = express.Router();
+// const passport = require('passport');
+// const authController = require('../controllers/authController');
+
+// // Local auth routes
+// router.post('/register', authController.register);
+// router.post('/verify-email', authController.verifyEmail);
+// router.post('/login', authController.login);
+// router.post('/verify-2fa', authController.verify2FA);
+// router.post('/forgot-password', authController.forgotPassword);
+// router.post('/reset-password', authController.resetPassword);
+// router.post('/logout', authController.logout);
+
+// // Google OAuth login route
+// router.get(
+//   '/google',
+//   passport.authenticate('google', {
+//     scope: ['profile', 'email'],
+//     prompt: 'select_account', // forces account chooser
+//   })
+// );
+
+// // Google OAuth callback route
+// router.get(
+//   '/google/callback',
+//   passport.authenticate('google', {
+//     failureRedirect: 'http://localhost:5173/login',
+//     session: false,
+//   }),
+//   (req, res) => {
+//     // ✅ Redirect user based on role
+//     if (!req.user || !req.user.role) {
+//       return res.redirect('http://localhost:5173/login'); // fallback
+//     }
+
+//     switch (req.user.role) {
+//       case 'staff':
+//         return res.redirect('http://localhost:5173/staff');
+//       case 'admin':
+//         return res.redirect('http://localhost:5173/admin');
+//       case 'manager':
+//         return res.redirect('http://localhost:5173/manager');
+//       case 'clerk':
+//         return res.redirect('http://localhost:5173/clerk');
+//       default:
+//         return res.redirect('http://localhost:5173/guest');
+//     }
+//   }
+// );
+
+// module.exports = router;
+const express = require('express');
+const router = express.Router();
+const passport = require('passport');
+const authController = require('../controllers/authController');
+
+// 🔹 Normal Auth Routes
+router.post('/register', authController.register);
+router.post('/verify-email', authController.verifyEmail);
+router.post('/login', authController.login);
+router.post('/verify-2fa', authController.verify2FA);
+router.post('/forgot-password', authController.forgotPassword);
+router.post('/reset-password', authController.resetPassword);
+router.post('/logout', authController.logout);
+
+// 🔹 Google OAuth start (forces email chooser every time)
+router.get(
+  '/google',
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    prompt: 'select_account',
+  })
+);
+
+// 🔹 Google OAuth callback
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { failureRedirect: 'http://localhost:5173/login' }),
+  (req, res) => {
+    // ✅ Redirect user based on role
+    if (req.user && req.user.role === 'staff') {
+      return res.redirect('http://localhost:5173/staff');
+    } else if (req.user && req.user.role === 'admin') {
+      return res.redirect('http://localhost:5173/admin');
+    } else if (req.user && req.user.role === 'manager') {
+      return res.redirect('http://localhost:5173/manager');
+    } else if (req.user && req.user.role === 'clerk') {
+      return res.redirect('http://localhost:5173/clerk');
+    } else {
+      // ✅ Default for new or unassigned users
+      return res.redirect('http://localhost:5173/guest');
+    }
+  }
+);
+
+module.exports = router;

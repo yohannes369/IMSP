@@ -43,6 +43,10 @@ router.patch('/users/:id/activate', adminController.activateUser);
 
 // Deactivate user (PATCH /api/admin/users/:id/deactivate)
 router.patch('/users/:id/deactivate', adminController.deactivateUser);
+
+router.delete('/users/:id', adminController.deleteUser);
+// router.get('/pending-users-count', adminController.getPendingUsersCount);
+
 // router.get('/me',  adminController.getPersonalInfo);
 
 // Assign staff_id to a staff user

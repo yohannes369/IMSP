@@ -1,5 +1,117 @@
 
-// // };
+// const db = require('../config/db');
+
+// const STATUS = {
+//   PENDING_MANAGER: 'pending_manager',
+//   REJECTED_MANAGER: 'rejected_manager',
+//   PENDING_CLERK: 'pending_clerk',
+//   REJECTED_CLERK: 'rejected_clerk',
+//   APPROVED: 'approved',
+// };
+
+// const create = async ({
+//   staff_id,
+//   staff_name,
+//   staff_email,
+//   item_type,
+//   item_serial,
+//   quantity,
+//   explanation,
+// }) => {
+//   const [userRows] = await db.query('SELECT id FROM users WHERE staff_id = ? LIMIT 1', [staff_id]);
+//   if (userRows.length === 0) {
+//     throw new Error(`Staff ID ${staff_id} not found.`);
+//   }
+
+//   const [result] = await db.query(
+//     `INSERT INTO item_requests 
+//      (staff_id, staff_name, staff_email, item_type, item_serial, quantity, explanation, status)
+//      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+//     [staff_id, staff_name, staff_email, item_type, item_serial, quantity, explanation, STATUS.PENDING_MANAGER]
+//   );
+
+//   return result;
+// };
+
+// const findByStaffId = async (staffId) => {
+//   const [rows] = await db.query(
+//     `SELECT * FROM item_requests WHERE staff_id = ? ORDER BY created_at DESC`,
+//     [staffId]
+//   );
+//   return rows;
+// };
+
+// const findById = async (id) => {
+//   const [rows] = await db.query('SELECT * FROM item_requests WHERE id = ?', [id]);
+//   return rows[0];
+// };
+
+// const updateManagerReview = async (id, { status, manager_comment }) => {
+//   if (![STATUS.PENDING_CLERK, STATUS.REJECTED_MANAGER].includes(status)) {
+//     throw new Error('Invalid status for manager review');
+//   }
+
+//   await db.query(
+//     `UPDATE item_requests SET status = ?, manager_comment = ? WHERE id = ?`,
+//     [status, manager_comment, id]
+//   );
+
+//   const [[{ staff_id }]] = await db.query('SELECT staff_id FROM item_requests WHERE id = ?', [id]);
+
+//   const [requests] = await db.query(
+//     `SELECT * FROM item_requests WHERE staff_id = ? ORDER BY created_at DESC`,
+//     [staff_id]
+//   );
+
+//   return requests;
+// };
+
+
+// const getOnePendingManagerRequest = async () => {
+//   const [rows] = await db.query(
+//     `SELECT * FROM item_requests WHERE status = ? ORDER BY created_at ASC LIMIT 1`,
+//     [STATUS.PENDING_MANAGER]
+//   );
+//   return rows;
+// };
+
+// const getOnePendingClerkRequest = async () => {
+//   const [rows] = await db.query(
+//     `SELECT * FROM item_requests WHERE status = ? ORDER BY created_at ASC LIMIT 1`,
+//     [STATUS.PENDING_CLERK]
+//   );
+//   return rows;
+// };
+
+// const updateClerkReview = async (id, { status, clerk_comment }) => {
+//   if (![STATUS.APPROVED, STATUS.REJECTED_CLERK].includes(status)) {
+//     throw new Error('Invalid status for clerk review');
+//   }
+
+//   await db.query(
+//     `UPDATE item_requests SET status = ?, clerk_comment = ? WHERE id = ?`,
+//     [status, clerk_comment, id]
+//   );
+
+//   const [rows] = await db.query('SELECT * FROM item_requests WHERE id = ?', [id]);
+//   return rows[0];
+// };
+
+// module.exports = {
+//   STATUS,
+//   create,
+//   findByStaffId,
+//   findById,
+//   updateManagerReview,
+//   updateClerkReview,
+//   getOnePendingManagerRequest,
+//   getOnePendingClerkRequest,
+// };
+
+
+// corecte one
+
+
 // const db = require('../config/db');
 
 // const STATUS = {
@@ -11,8 +123,7 @@
 // };
 
 // /**
-//  * Create a new item request if staff_id exists in users table.
-//  * Throws error if staff_id not found.
+//  * Create a new item request
 //  */
 // const create = async ({
 //   staff_id,
@@ -23,127 +134,145 @@
 //   quantity,
 //   explanation,
 // }) => {
-//   // Check if staff_id exists in users table
-//   const checkQuery = 'SELECT id FROM users WHERE staff_id = ? LIMIT 1';
-//   const [userRows] = await db.query(checkQuery, [staff_id]);
-
+//   // Check if staff exists
+//   const [userRows] = await db.query(
+//     'SELECT id FROM users WHERE staff_id = ? LIMIT 1',
+//     [staff_id]
+//   );
 //   if (userRows.length === 0) {
-//     throw new Error(`Staff ID ${staff_id} not found. Cannot create request.`);
+//     throw new Error(`Staff ID ${staff_id} not found.`);
 //   }
 
-//   // Insert new item request
-//   const insertQuery = `
-//     INSERT INTO item_requests 
-//       (staff_id, staff_name, staff_email, item_type, item_serial, quantity, explanation, status)
-//     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-//   `;
-//   const params = [
-//     staff_id,
-//     staff_name,
-//     staff_email,
-//     item_type,
-//     item_serial,
-//     quantity,
-//     explanation,
-//     STATUS.PENDING_MANAGER,
-//   ];
-//   const [result] = await db.query(insertQuery, params);
+//   // Check if item is already requested and still pending or approved
+//   const [[existing]] = await db.query(
+//     `SELECT id FROM item_requests 
+//      WHERE item_serial = ? 
+//      AND status IN (?, ?, ?) 
+//      LIMIT 1`,
+//     [item_serial, STATUS.PENDING_MANAGER, STATUS.PENDING_CLERK, STATUS.APPROVED]
+//   );
+
+//   if (existing) {
+//     throw new Error(
+//       `Item with serial number ${item_serial} has already been requested by another staff.`
+//     );
+//   }
+
+//   // Insert new request
+//   const [result] = await db.query(
+//     `INSERT INTO item_requests 
+//      (staff_id, staff_name, staff_email, item_type, item_serial, quantity, explanation, status)
+//      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+//     [
+//       staff_id,
+//       staff_name,
+//       staff_email,
+//       item_type,
+//       item_serial,
+//       quantity,
+//       explanation,
+//       STATUS.PENDING_MANAGER,
+//     ]
+//   );
+
 //   return result;
 // };
 
 // /**
-//  * Find all requests by a specific staff ID ordered by newest first
+//  * Get all requests of a staff
 //  */
 // const findByStaffId = async (staffId) => {
-//   const query = `
-//     SELECT * FROM item_requests 
-//     WHERE staff_id = ? 
-//     ORDER BY created_at DESC
-//   `;
-//   const [rows] = await db.query(query, [staffId]);
+//   const [rows] = await db.query(
+//     `SELECT * FROM item_requests WHERE staff_id = ? ORDER BY created_at DESC`,
+//     [staffId]
+//   );
 //   return rows;
 // };
 
 // /**
-//  * Find a specific request by ID
+//  * Get request by ID
 //  */
 // const findById = async (id) => {
-//   const query = 'SELECT * FROM item_requests WHERE id = ?';
-//   const [rows] = await db.query(query, [id]);
+//   const [rows] = await db.query('SELECT * FROM item_requests WHERE id = ?', [id]);
 //   return rows[0];
 // };
 
 // /**
-//  * Manager reviews a request: updates status and manager_comment.
-//  * After updating, returns all requests by the same staff_id.
-//  * Allowed statuses for manager review: 'pending_clerk' (approve), 'rejected_manager' (reject)
+//  * Manager review update
 //  */
 // const updateManagerReview = async (id, { status, manager_comment }) => {
 //   if (![STATUS.PENDING_CLERK, STATUS.REJECTED_MANAGER].includes(status)) {
 //     throw new Error('Invalid status for manager review');
 //   }
 
-//   // Update the current request's status and manager comment
-//   const updateQuery = `
-//     UPDATE item_requests 
-//     SET status = ?, manager_comment = ?
-//     WHERE id = ?
-//   `;
-//   await db.query(updateQuery, [status, manager_comment, id]);
+//   await db.query(
+//     `UPDATE item_requests SET status = ?, manager_comment = ? WHERE id = ?`,
+//     [status, manager_comment, id]
+//   );
 
-//   // Get the staff_id of this request
-//   const staffQuery = `
-//     SELECT staff_id FROM item_requests WHERE id = ?
-//   `;
-//   const [staffRows] = await db.query(staffQuery, [id]);
+//   const [[{ staff_id }]] = await db.query(
+//     'SELECT staff_id FROM item_requests WHERE id = ?',
+//     [id]
+//   );
 
-//   if (staffRows.length === 0) {
-//     throw new Error(`Request with id ${id} not found`);
-//   }
+//   const [requests] = await db.query(
+//     `SELECT * FROM item_requests WHERE staff_id = ? ORDER BY created_at DESC`,
+//     [staff_id]
+//   );
 
-//   const staffId = staffRows[0].staff_id;
-
-//   // Fetch all requests for that staff_id ordered newest first
-//   const fetchAllStaffRequestsQuery = `
-//     SELECT * FROM item_requests WHERE staff_id = ? ORDER BY created_at DESC
-//   `;
-//   const [allRequests] = await db.query(fetchAllStaffRequestsQuery, [staffId]);
-
-//   return allRequests;
+//   return requests;
 // };
 
 // /**
-//  * Get one pending request for manager review ordered by oldest first
-//  * Returns array with zero or one request
+//  * Get oldest pending manager request
 //  */
 // const getOnePendingManagerRequest = async () => {
-//   const query = `
-//     SELECT * FROM item_requests
-//     WHERE status = ?
-//     ORDER BY created_at ASC
-//     LIMIT 1
-//   `;
-//   const [rows] = await db.query(query, [STATUS.PENDING_MANAGER]);
+//   const [rows] = await db.query(
+//     `SELECT * FROM item_requests WHERE status = ? ORDER BY created_at ASC LIMIT 1`,
+//     [STATUS.PENDING_MANAGER]
+//   );
 //   return rows;
 // };
 
 // /**
-//  * Clerk reviews a request: updates status and clerk_comment.
-//  * Allowed statuses for clerk review: 'approved', 'rejected_clerk'
+//  * Get oldest pending clerk request
+//  */
+// const getOnePendingClerkRequest = async () => {
+//   const [rows] = await db.query(
+//     `SELECT * FROM item_requests WHERE status = ? ORDER BY created_at ASC LIMIT 1`,
+//     [STATUS.PENDING_CLERK]
+//   );
+//   return rows;
+// };
+
+// /**
+//  * Clerk review update
 //  */
 // const updateClerkReview = async (id, { status, clerk_comment }) => {
 //   if (![STATUS.APPROVED, STATUS.REJECTED_CLERK].includes(status)) {
 //     throw new Error('Invalid status for clerk review');
 //   }
 
-//   const query = `
-//     UPDATE item_requests 
-//     SET status = ?, clerk_comment = ?
-//     WHERE id = ?
-//   `;
-//   const [result] = await db.query(query, [status, clerk_comment, id]);
-//   return result;
+//   await db.query(
+//     `UPDATE item_requests SET status = ?, clerk_comment = ? WHERE id = ?`,
+//     [status, clerk_comment, id]
+//   );
+
+//   const [rows] = await db.query('SELECT * FROM item_requests WHERE id = ?', [id]);
+//   return rows[0];
 // };
+// // Method to find existing request for a given item_serial in specific statuses
+// const findPendingByItemSerial = async (item_serial) => {
+//   const [rows] = await db.query(
+//     `SELECT * FROM item_requests 
+//      WHERE item_serial = ? 
+//        AND status IN (?, ?, ?) 
+//      LIMIT 1`,
+//     [item_serial, STATUS.PENDING_MANAGER, STATUS.PENDING_CLERK, STATUS.APPROVED]
+//   );
+//   return rows.length > 0 ? rows[0] : null;
+// };
+
 
 // module.exports = {
 //   STATUS,
@@ -153,6 +282,112 @@
 //   updateManagerReview,
 //   updateClerkReview,
 //   getOnePendingManagerRequest,
+//   getOnePendingClerkRequest,
+//    findPendingByItemSerial,
+// };
+
+// coorect one
+
+// const db = require('../config/db');
+
+// const STATUS = {
+//   PENDING_MANAGER: 'pending_manager',
+//   REJECTED_MANAGER: 'rejected_manager',
+//   PENDING_CLERK: 'pending_clerk',
+//   REJECTED_CLERK: 'rejected_clerk',
+//   APPROVED: 'approved',
+// };
+
+// // Create a new request
+// async function createRequest({ staff_id, staff_name, staff_email, item_type, item_serial, quantity, explanation }) {
+//   const [userRows] = await db.query('SELECT id FROM users WHERE staff_id = ? LIMIT 1', [staff_id]);
+//   if (userRows.length === 0) throw new Error(`Staff ID ${staff_id} not found.`);
+
+//   const [[existing]] = await db.query(
+//     `SELECT id FROM item_requests WHERE item_serial = ? AND status IN (?, ?, ?) LIMIT 1`,
+//     [item_serial, STATUS.PENDING_MANAGER, STATUS.PENDING_CLERK, STATUS.APPROVED]
+//   );
+//   if (existing) throw new Error(`Item ${item_serial} has already been requested.`);
+
+//   const [result] = await db.query(
+//     `INSERT INTO item_requests 
+//      (staff_id, staff_name, staff_email, item_type, item_serial, quantity, explanation, status)
+//      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+//     [staff_id, staff_name, staff_email, item_type, item_serial, quantity, explanation, STATUS.PENDING_MANAGER]
+//   );
+
+//   return result;
+// }
+
+// // Get requests by staff ID
+// async function findByStaffId(staffId) {
+//   const [rows] = await db.query('SELECT * FROM item_requests WHERE staff_id = ? ORDER BY created_at DESC', [staffId]);
+//   return rows;
+// }
+
+// // Get request by ID
+// async function findById(id) {
+//   const [rows] = await db.query('SELECT * FROM item_requests WHERE id = ?', [id]);
+//   return rows[0];
+// }
+
+// // Manager review
+// async function updateManagerReview(id, { status, manager_comment }) {
+//   if (![STATUS.PENDING_CLERK, STATUS.REJECTED_MANAGER].includes(status)) throw new Error('Invalid status for manager review');
+
+//   await db.query('UPDATE item_requests SET status = ?, manager_comment = ? WHERE id = ?', [status, manager_comment, id]);
+
+//   const [[{ staff_id }]] = await db.query('SELECT staff_id FROM item_requests WHERE id = ?', [id]);
+//   const [requests] = await db.query('SELECT * FROM item_requests WHERE staff_id = ? ORDER BY created_at DESC', [staff_id]);
+//   return requests;
+// }
+
+// // Clerk review
+// async function updateClerkReview(id, { status, clerk_comment }) {
+//   if (![STATUS.APPROVED, STATUS.REJECTED_CLERK].includes(status)) throw new Error('Invalid status for clerk review');
+
+//   await db.query('UPDATE item_requests SET status = ?, clerk_comment = ? WHERE id = ?', [status, clerk_comment, id]);
+//   const [rows] = await db.query('SELECT * FROM item_requests WHERE id = ?', [id]);
+//   return rows[0];
+// }
+
+// // Get next pending manager request
+// async function getOnePendingManagerRequest() {
+//   const [rows] = await db.query('SELECT * FROM item_requests WHERE status = ? ORDER BY created_at ASC LIMIT 1', [STATUS.PENDING_MANAGER]);
+//   return rows;
+// }
+
+// // Get next pending clerk request
+// async function getOnePendingClerkRequest() {
+//   const [rows] = await db.query('SELECT * FROM item_requests WHERE status = ? ORDER BY created_at ASC LIMIT 1', [STATUS.PENDING_CLERK]);
+//   return rows;
+// }
+
+// // Find pending request by item_serial
+// async function findPendingByItemSerial(item_serial) {
+//   const [rows] = await db.query(
+//     'SELECT * FROM item_requests WHERE item_serial = ? AND status IN (?, ?, ?) LIMIT 1',
+//     [item_serial, STATUS.PENDING_MANAGER, STATUS.PENDING_CLERK, STATUS.APPROVED]
+//   );
+//   return rows.length > 0 ? rows[0] : null;
+// }
+
+// // Delete request
+// async function deleteById(id) {
+//   await db.query('DELETE FROM item_requests WHERE id = ?', [id]);
+// }
+
+// module.exports = {
+//   STATUS,
+//   createRequest,
+//   findByStaffId,
+//   findById,
+//   updateManagerReview,
+//   updateClerkReview,
+//   getOnePendingManagerRequest,
+//   getOnePendingClerkRequest,
+//   findPendingByItemSerial,
+//   deleteById
 // };
 const db = require('../config/db');
 
@@ -164,19 +399,16 @@ const STATUS = {
   APPROVED: 'approved',
 };
 
-const create = async ({
-  staff_id,
-  staff_name,
-  staff_email,
-  item_type,
-  item_serial,
-  quantity,
-  explanation,
-}) => {
+// Create a new request
+async function createRequest({ staff_id, staff_name, staff_email, item_type, item_serial, quantity, explanation }, io) {
   const [userRows] = await db.query('SELECT id FROM users WHERE staff_id = ? LIMIT 1', [staff_id]);
-  if (userRows.length === 0) {
-    throw new Error(`Staff ID ${staff_id} not found.`);
-  }
+  if (userRows.length === 0) throw new Error(`Staff ID ${staff_id} not found.`);
+
+  const [[existing]] = await db.query(
+    `SELECT id FROM item_requests WHERE item_serial = ? AND status IN (?, ?, ?) LIMIT 1`,
+    [item_serial, STATUS.PENDING_MANAGER, STATUS.PENDING_CLERK, STATUS.APPROVED]
+  );
+  if (existing) throw new Error(`Item ${item_serial} has already been requested.`);
 
   const [result] = await db.query(
     `INSERT INTO item_requests 
@@ -185,79 +417,106 @@ const create = async ({
     [staff_id, staff_name, staff_email, item_type, item_serial, quantity, explanation, STATUS.PENDING_MANAGER]
   );
 
-  return result;
-};
-
-const findByStaffId = async (staffId) => {
-  const [rows] = await db.query(
-    `SELECT * FROM item_requests WHERE staff_id = ? ORDER BY created_at DESC`,
-    [staffId]
-  );
-  return rows;
-};
-
-const findById = async (id) => {
-  const [rows] = await db.query('SELECT * FROM item_requests WHERE id = ?', [id]);
-  return rows[0];
-};
-
-const updateManagerReview = async (id, { status, manager_comment }) => {
-  if (![STATUS.PENDING_CLERK, STATUS.REJECTED_MANAGER].includes(status)) {
-    throw new Error('Invalid status for manager review');
+  // Emit real-time notification
+  if (io) {
+    io.emit('new_assign_request', {
+      requestId: result.insertId,
+      staffName: staff_name,
+      itemSerial: item_serial,
+      quantity
+    });
   }
 
-  await db.query(
-    `UPDATE item_requests SET status = ?, manager_comment = ? WHERE id = ?`,
-    [status, manager_comment, id]
-  );
+  return result;
+}
+
+// Get requests by staff ID
+async function findByStaffId(staffId) {
+  const [rows] = await db.query('SELECT * FROM item_requests WHERE staff_id = ? ORDER BY created_at DESC', [staffId]);
+  return rows;
+}
+
+// Get request by ID
+async function findById(id) {
+  const [rows] = await db.query('SELECT * FROM item_requests WHERE id = ?', [id]);
+  return rows[0];
+}
+
+// Manager review
+async function updateManagerReview(id, { status, manager_comment }, io) {
+  if (![STATUS.PENDING_CLERK, STATUS.REJECTED_MANAGER].includes(status)) throw new Error('Invalid status for manager review');
+
+  await db.query('UPDATE item_requests SET status = ?, manager_comment = ? WHERE id = ?', [status, manager_comment, id]);
 
   const [[{ staff_id }]] = await db.query('SELECT staff_id FROM item_requests WHERE id = ?', [id]);
+  const [requests] = await db.query('SELECT * FROM item_requests WHERE staff_id = ? ORDER BY created_at DESC', [staff_id]);
 
-  const [requests] = await db.query(
-    `SELECT * FROM item_requests WHERE staff_id = ? ORDER BY created_at DESC`,
-    [staff_id]
-  );
-
-  return requests;
-};
-
-const updateClerkReview = async (id, { status, clerk_comment }) => {
-  if (![STATUS.APPROVED, STATUS.REJECTED_CLERK].includes(status)) {
-    throw new Error('Invalid status for clerk review');
+  // Emit real-time notification
+  if (io) {
+    io.emit('manager_review_processed', {
+      requestId: id,
+      staffId: staff_id,
+      status
+    });
   }
 
-  await db.query(
-    `UPDATE item_requests SET status = ?, clerk_comment = ? WHERE id = ?`,
-    [status, clerk_comment, id]
-  );
+  return requests;
+}
 
+// Clerk review
+async function updateClerkReview(id, { status, clerk_comment }, io) {
+  if (![STATUS.APPROVED, STATUS.REJECTED_CLERK].includes(status)) throw new Error('Invalid status for clerk review');
+
+  await db.query('UPDATE item_requests SET status = ?, clerk_comment = ? WHERE id = ?', [status, clerk_comment, id]);
   const [rows] = await db.query('SELECT * FROM item_requests WHERE id = ?', [id]);
+
+  // Emit real-time notification
+  if (io) {
+    io.emit('assign_request_processed', {
+      requestId: id,
+      staffId: rows[0].staff_id,
+      status
+    });
+  }
+
   return rows[0];
-};
+}
 
-const getOnePendingManagerRequest = async () => {
-  const [rows] = await db.query(
-    `SELECT * FROM item_requests WHERE status = ? ORDER BY created_at ASC LIMIT 1`,
-    [STATUS.PENDING_MANAGER]
-  );
+// Get next pending manager request
+async function getOnePendingManagerRequest() {
+  const [rows] = await db.query('SELECT * FROM item_requests WHERE status = ? ORDER BY created_at ASC LIMIT 1', [STATUS.PENDING_MANAGER]);
   return rows;
-};
+}
 
-const getOnePendingClerkRequest = async () => {
-  const [rows] = await db.query(
-    `SELECT * FROM item_requests WHERE status = ? ORDER BY created_at ASC LIMIT 1`,
-    [STATUS.PENDING_CLERK]
-  );
+// Get next pending clerk request
+async function getOnePendingClerkRequest() {
+  const [rows] = await db.query('SELECT * FROM item_requests WHERE status = ? ORDER BY created_at ASC LIMIT 1', [STATUS.PENDING_CLERK]);
   return rows;
-};
+}
+
+// Find pending request by item_serial
+async function findPendingByItemSerial(item_serial) {
+  const [rows] = await db.query(
+    'SELECT * FROM item_requests WHERE item_serial = ? AND status IN (?, ?, ?) LIMIT 1',
+    [item_serial, STATUS.PENDING_MANAGER, STATUS.PENDING_CLERK, STATUS.APPROVED]
+  );
+  return rows.length > 0 ? rows[0] : null;
+}
+
+// Delete request
+async function deleteById(id) {
+  await db.query('DELETE FROM item_requests WHERE id = ?', [id]);
+}
 
 module.exports = {
   STATUS,
-  create,
+  createRequest,
   findByStaffId,
   findById,
   updateManagerReview,
   updateClerkReview,
   getOnePendingManagerRequest,
   getOnePendingClerkRequest,
+  findPendingByItemSerial,
+  deleteById
 };
