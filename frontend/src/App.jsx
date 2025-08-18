@@ -333,7 +333,7 @@ import Home from "./components/Home";
 import About from "./components/About";
 import Service from "./components/Service";
 import Contact from "./components/Contact";
-
+import Logout from "./components/Logout";
 const App = () => {
   return (
     // Remove all padding/margin, full width and height
@@ -345,6 +345,7 @@ const App = () => {
         <Route path="/about" element={<About />} />
         <Route path="/services" element={<Service />} />
         <Route path="/contact" element={<Contact />} />
+          <Route path="/logout" element={<Logout />} />
 
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
@@ -391,6 +392,61 @@ const App = () => {
 };
 
 export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // import React from "react";
 // import { Routes, Route } from "react-router-dom";
@@ -564,6 +620,261 @@ export default App;
 //             <ManagerDashboard />
 //           </RoleRoute>
 //         } />
+//       </Routes>
+//     </div>
+//   );
+// };
+
+// export default App;
+
+
+
+
+
+
+// import React from "react";
+// import { Routes, Route, Navigate } from "react-router-dom";
+// import "./components/i18n/i18n"; // i18n config
+
+// // Auth Pages
+// import Login from "./pages/Auth/Login";
+// import Register from "./pages/Auth/Register";
+// import ForgotPassword from "./pages/Auth/ForgotPassword";
+// import ResetPassword from "./pages/Auth/ResetPassword";
+// import Verify2FA from "./pages/Auth/Verify2FA";
+// import VerifyEmail from "./pages/Auth/verify-email";
+
+// // Admin Pages
+// import AdminDashboard from "./pages/admin/AdminDashboard";
+// import AdminPage from "./pages/admin/UserManagment";
+// import AdminReports from "./pages/admin/AdminReports";
+
+// // Clerk Pages
+// import ClerkDashboard from "./pages/clerk/ClerkDashboard";
+// import ClerkPage from "./pages/clerk/ClerkPage";
+// import UpdateItem from "./pages/clerk/UpdateItem";
+// import AddItemPage from "./pages/clerk/AddItemPage";
+// import GiveItemToStaff from "./pages/clerk/GiveItemToStaff";
+// import ClerkPendingReturns from "./pages/clerk/c";
+// import ForecastItem from "./pages/clerk/ForecastItem";
+
+// // Staff Pages
+// import StaffPage from "./pages/staff/StaffPage";
+// import StaffRequestForm from "./pages/staff/StaffRequestForm";
+// import StaffRequestStatus from "./pages/staff/StaffRequestStatus";
+// import StaffGivenItems from "./pages/staff/s";
+// import ItemRequests from "./pages/staff/ItemRequests";
+
+// // Manager Pages
+// import ManagerReview from "./pages/manager/ManagerReview";
+// import ManagerDashboard from "./pages/manager/ManagerDashboard";
+
+// // Public Pages
+// import Home from "./components/Home";
+// import About from "./components/About";
+// import Service from "./components/Service";
+// import Contact from "./components/Contact";
+// import Logout from "./components/Logout";
+// import NotFound from "./components/NotFound"; // Create a 404 page component
+
+// // Dummy auth check functions
+// const isAuthenticated = () => !!localStorage.getItem("token");
+// const isAdmin = () => localStorage.getItem("role") === "admin";
+// const isClerk = () => localStorage.getItem("role") === "clerk";
+// const isStaff = () => localStorage.getItem("role") === "staff";
+// const isManager = () => localStorage.getItem("role") === "manager";
+
+// // Protected Route wrapper
+// const ProtectedRoute = ({ element, condition }) => {
+//   return condition ? element : <Navigate to="/login" replace />;
+// };
+
+// const App = () => {
+//   return (
+//     <div className="m-0 p-0 w-full min-h-screen">
+//       <Routes>
+//         {/* Public Routes */}
+//         <Route path="/" element={<Home />} />
+//         <Route path="/home" element={<Home />} />
+//         <Route path="/about" element={<About />} />
+//         <Route path="/services" element={<Service />} />
+//         <Route path="/contact" element={<Contact />} />
+//         <Route path="/logout" element={<Logout />} />
+
+//         {/* Auth Routes */}
+//         <Route path="/login" element={<Login />} />
+//         <Route path="/register" element={<Register />} />
+//         <Route path="/forgot-password" element={<ForgotPassword />} />
+//         <Route path="/reset-password" element={<ResetPassword />} />
+//         <Route path="/verify-2fa" element={<Verify2FA />} />
+//         <Route path="/verify-email" element={<VerifyEmail />} />
+
+//         {/* Admin Routes */}
+//         <Route
+//           path="/admin"
+//           element={<ProtectedRoute element={<AdminDashboard />} condition={isAdmin()} />}
+//         />
+//         <Route
+//           path="/admin/users"
+//           element={<ProtectedRoute element={<AdminPage />} condition={isAdmin()} />}
+//         />
+//         <Route
+//           path="/admin/reports"
+//           element={<ProtectedRoute element={<AdminReports />} condition={isAdmin()} />}
+//         />
+
+//         {/* Clerk Routes */}
+//         <Route
+//           path="/clerk"
+//           element={<ProtectedRoute element={<ClerkDashboard />} condition={isClerk()} />}
+//         />
+//         <Route
+//           path="/clerk/item-managment"
+//           element={<ProtectedRoute element={<ClerkPage />} condition={isClerk()} />}
+//         />
+//         <Route
+//           path="/clerk/add-item"
+//           element={<ProtectedRoute element={<AddItemPage />} condition={isClerk()} />}
+//         />
+//         <Route
+//           path="/clerk/update-item/:id"
+//           element={<ProtectedRoute element={<UpdateItem />} condition={isClerk()} />}
+//         />
+//         <Route
+//           path="/clerk/give"
+//           element={<ProtectedRoute element={<GiveItemToStaff />} condition={isClerk()} />}
+//         />
+//         <Route
+//           path="/clerk/return"
+//           element={<ProtectedRoute element={<ClerkPendingReturns />} condition={isClerk()} />}
+//         />
+//         <Route
+//           path="/for"
+//           element={<ProtectedRoute element={<ForecastItem />} condition={isClerk()} />}
+//         />
+
+//         {/* Staff Routes */}
+//         <Route
+//           path="/staff"
+//           element={<ProtectedRoute element={<StaffPage />} condition={isStaff()} />}
+//         />
+//         <Route
+//           path="/staff-request-form"
+//           element={<ProtectedRoute element={<StaffRequestForm />} condition={isStaff()} />}
+//         />
+//         <Route
+//           path="/staff-request-status"
+//           element={<ProtectedRoute element={<StaffRequestStatus />} condition={isStaff()} />}
+//         />
+//         <Route
+//           path="/s"
+//           element={<ProtectedRoute element={<StaffGivenItems />} condition={isStaff()} />}
+//         />
+//         <Route
+//           path="/item-requests"
+//           element={<ProtectedRoute element={<ItemRequests />} condition={isStaff()} />}
+//         />
+
+//         {/* Manager Routes */}
+//         <Route
+//           path="/manager/request"
+//           element={<ProtectedRoute element={<ManagerReview />} condition={isManager()} />}
+//         />
+//         <Route
+//           path="/manager-review"
+//           element={<ProtectedRoute element={<ManagerReview />} condition={isManager()} />}
+//         />
+//         <Route
+//           path="/mdashboard"
+//           element={<ProtectedRoute element={<ManagerDashboard />} condition={isManager()} />}
+//         />
+
+//         {/* 404 Not Found */}
+//         <Route path="*" element={<NotFound />} />
+//       </Routes>
+//     </div>
+//   );
+// };
+
+// export default App;
+
+// import React from "react";
+// import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+
+// import Login from "./pages/Auth/Login";
+// import Register from "./pages/Auth/Register";
+// import ForgotPassword from "./pages/Auth/ForgotPassword";
+// import ResetPassword from "./pages/Auth/ResetPassword";
+// import Verify2FA from "./pages/Auth/Verify2FA";
+// import VerifyEmail from "./pages/Auth/verify-email";
+
+// import AdminDashboard from "./pages/admin/AdminDashboard";
+// import AdminPage from "./pages/admin/UserManagment";
+
+// import ClerkPage from "./pages/clerk/ClerkPage";
+// import UpdateItem from './pages/clerk/UpdateItem';
+// import AddItemPage from './pages/clerk/AddItemPage';
+// import GiveItemToStaff from './pages/clerk/GiveItemToStaff';
+// import ClerkPendingReturns from './pages/clerk/c';
+
+// import StaffPage from "./pages/staff/StaffPage";
+// import StaffRequestForm from './pages/staff/StaffRequestForm';
+// import StaffRequestStatus from './pages/staff/StaffRequestStatus';
+// import StaffGivenItems from './pages/staff/s';
+// import ItemRequests from './pages/staff/ItemRequests';
+
+// import ManagerReview from './pages/manager/ManagerReview';
+
+// import Home from "./components/Home";
+// import About from "./components/About";
+// import Service from "./components/Service";
+// import Contact from "./components/Contact";
+
+// // ProtectedRoute component to guard protected routes
+// const ProtectedRoute = ({ isAuthenticated }) => {
+//   return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+// };
+
+// const App = () => {
+//   // Replace with your actual authentication check from OAuth or auth state
+//   const isAuthenticated = false; // Example: change to your auth logic
+
+//   return (
+//     <div style={{ padding: 20 }}>
+//       <Routes>
+//         {/* Public routes */}
+//         <Route path="/" element={<Home />} />
+//         <Route path="/login" element={<Login />} />
+//         <Route path="/register" element={<Register />} />
+//         <Route path="/forgot-password" element={<ForgotPassword />} />
+//         <Route path="/reset-password" element={<ResetPassword />} />
+//         <Route path="/verify-2fa" element={<Verify2FA />} />
+//         <Route path="/verify-email" element={<VerifyEmail />} />
+
+//         {/* Protected routes wrapped in ProtectedRoute */}
+//         <Route element={<ProtectedRoute isAuthenticated={isAuthenticated} />}>
+//           <Route path="/AdminDashboard/users" element={<AdminPage />} />
+//           <Route path="/AdminDashboard" element={<AdminDashboard />} />
+//           <Route path="/clerk" element={<ClerkPage />} />
+//           <Route path="/staff" element={<StaffPage />} />
+//           <Route path="/add-item" element={<AddItemPage />} />
+//           <Route path="/update-item/:id" element={<UpdateItem />} />
+//           <Route path="/item-requests" element={<ItemRequests />} />
+//           <Route path="/manager" element={<ManagerReview />} />
+//           <Route path="/staff-request-form" element={<StaffRequestForm />} />
+//           <Route path="/staff-request-status" element={<StaffRequestStatus />} />
+//           <Route path="/manager-review" element={<ManagerReview />} />
+//           <Route path="/give" element={<GiveItemToStaff />} />
+//           <Route path="/home" element={<Home />} />
+//           <Route path="/about" element={<About />} />
+//           <Route path="/services" element={<Service />} />
+//           <Route path="/contact" element={<Contact />} />
+//           <Route path="/s" element={<StaffGivenItems />} />
+//           <Route path="/c" element={<ClerkPendingReturns />} />
+//         </Route>
+
+//         {/* Catch all unknown routes and redirect to login */}
+//         <Route path="*" element={<Navigate to="/login" replace />} />
 //       </Routes>
 //     </div>
 //   );

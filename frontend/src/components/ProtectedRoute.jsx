@@ -1,13 +1,21 @@
 // src/components/ProtectedRoute.jsx
-import React from "react";
+import React, { useContext } from "react";
 import { Navigate } from "react-router-dom";
-import { isAuthenticated } from "../utils/auth";
+import { AuthContext } from "../context/AuthContext";
 
-const ProtectedRoute = ({ children }) => {
-  if (!isAuthenticated()) {
-    // Redirect to login if not authenticated
+const ProtectedRoute = ({ children, role }) => {
+  const { user } = useContext(AuthContext);
+
+  if (!user) {
+    // Not logged in
     return <Navigate to="/login" replace />;
   }
+
+  if (role && user.role !== role) {
+    // Role mismatch
+    return <Navigate to="/login" replace />;
+  }
+
   return children;
 };
 
