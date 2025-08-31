@@ -1,604 +1,22 @@
 
-
-// const ItemModel = require('../models/itemModel');
-// const db = require('../config/db');
-
-// exports.addItem = async (req, res) => {
-//   try {
-//     const { name, serial_no, description, quantity, is_available } = req.body;
-//     const result = await ItemModel.addItem(name, serial_no, description, quantity, is_available);
-//     res.status(201).json({ message: 'Item added', itemId: result.insertId });
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// exports.getAllItems = async (req, res) => {
-//   try {
-//     const items = await ItemModel.getAllItems();
-//     res.status(200).json(items);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// exports.getItemById = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const item = await ItemModel.getItemById(id);
-//     if (!item) return res.status(404).json({ message: 'Item not found' });
-//     res.status(200).json(item);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// exports.deleteItem = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const result = await ItemModel.deleteItem(id);
-//     if (result.affectedRows === 0) {
-//       return res.status(404).json({ message: 'Item not found' });
-//     }
-//     res.json({ message: 'Item deleted' });
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// exports.updateItem = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const updateFields = req.body;
-//     const result = await ItemModel.updateItem(id, updateFields);
-
-//     if (result.affectedRows === 0) {
-//       return res.status(404).json({ message: 'Item not found' });
-//     }
-
-//     res.json({ message: 'Item updated successfully' });
-//   } catch (err) {
-//     console.error('Error updating item:', err.message);
-//     res.status(500).json({ message: 'Server error' });
-//   }
-// };
-
-
-
-
-
-
-
 // const ItemModel = require('../models/itemModel');
 // const bwipjs = require('bwip-js');
 // const fs = require('fs');
 // const path = require('path');
 
-// exports.addItem = async (req, res) => {
-//   try {
-//     const { name,serial_no, description, quantity, is_available } = req.body;
-
-//     // 1. Generate unique serial number
-   
-
-//     // 2. Generate barcode image buffer
-//     const barcodeBuffer = await bwipjs.toBuffer({
-//       bcid: 'code128',
-//       text: serial_no,
-//       scale: 3,
-//       height: 10,
-//       includetext: true,
-//       textxalign: 'center',
-//     });
-
-//     // 3. Save image to public/barcodes/
-//     const barcodeDir = path.join(__dirname, '..', 'public', 'barcodes');
-//     if (!fs.existsSync(barcodeDir)) fs.mkdirSync(barcodeDir, { recursive: true });
-
-//     const barcodeFilename = `${serial_no}.png`;
-//     const barcodePath = path.join(barcodeDir, barcodeFilename);
-//     fs.writeFileSync(barcodePath, barcodeBuffer);
-
-//     const barcodeUrl = `/barcodes/${barcodeFilename}`;
-
-//     // 4. Save to DB via model
-//     const result = await ItemModel.addItem(
-//       name,
-//       serial_no,
-//       serial_no,
-//       description,
-//       quantity,
-//       is_available,
-//       barcodeUrl
-//     );
-
-//     res.status(201).json({
-//       message: 'Item added with barcode',
-//       itemId: result.insertId,
-//       serial_no,
-//       barcode: barcodeUrl
-//     });
-
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// exports.getAllItems = async (req, res) => {
-//   try {
-//     const items = await ItemModel.getAllItems();
-//     res.status(200).json(items);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// exports.getItemById = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const item = await ItemModel.getItemById(id);
-//     if (!item) return res.status(404).json({ message: 'Item not found' });
-//     res.status(200).json(item);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// exports.deleteItem = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const result = await ItemModel.deleteItem(id);
-//     if (result.affectedRows === 0) {
-//       return res.status(404).json({ message: 'Item not found' });
-//     }
-//     res.json({ message: 'Item deleted' });
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// exports.updateItem = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const updateFields = req.body;
-//     const result = await ItemModel.updateItem(id, updateFields);
-
-//     if (result.affectedRows === 0) {
-//       return res.status(404).json({ message: 'Item not found' });
-//     }
-
-//     res.json({ message: 'Item updated successfully' });
-//   } catch (err) {
-//     console.error('Error updating item:', err.message);
-//     res.status(500).json({ message: 'Server error' });
-//   }
-// };
-
-
-
-
-
-
-// corect one
-
-// const ItemModel = require('../models/itemModel');
-// const bwipjs = require('bwip-js');
-// const fs = require('fs');
-// const path = require('path');
-
-// // Add item and generate barcode image
-// exports.addItem = async (req, res) => {
-//   try {
-//     const { name, serial_no, description, quantity, is_available } = req.body;
-
-//     // 1. Generate barcode with serial number (can later fetch full details using serial_no)
-//     const barcodeBuffer = await bwipjs.toBuffer({
-//       bcid: 'code128',
-//       text: serial_no,
-//       scale: 3,
-//       height: 10,
-//       includetext: true,
-//       textxalign: 'center',
-//     });
-
-//     // 2. Save barcode image in public/barcodes/
-//     const barcodeDir = path.join(__dirname, '..', 'public', 'barcodes');
-//     if (!fs.existsSync(barcodeDir)) fs.mkdirSync(barcodeDir, { recursive: true });
-
-//     const barcodeFilename = `${serial_no}.png`;
-//     const barcodePath = path.join(barcodeDir, barcodeFilename);
-//     fs.writeFileSync(barcodePath, barcodeBuffer);
-//     const barcodeUrl = `/barcodes/${barcodeFilename}`;
-
-//     // 3. Save item to DB
-//     const result = await ItemModel.addItem(name, serial_no, description, quantity, is_available, barcodeUrl);
-
-//     res.status(201).json({
-//       message: 'Item added successfully',
-//       itemId: result.insertId,
-//       serial_no,
-//       barcode: barcodeUrl,
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Fetch all items
-// exports.getAllItems = async (req, res) => {
-//   try {
-//     const items = await ItemModel.getAllItems();
-//     res.status(200).json(items);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Fetch single item by ID
-// exports.getItemById = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const item = await ItemModel.getItemById(id);
-//     if (!item) return res.status(404).json({ message: 'Item not found' });
-//     res.status(200).json(item);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Fetch item by barcode (serial number)
-// exports.getItemByBarcode = async (req, res) => {
-//   try {
-//     const { code } = req.params;
-//     const item = await ItemModel.getItemBySerial(code);
-//     if (!item) return res.status(404).json({ message: 'Item not found' });
-//     res.status(200).json(item);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Delete item
-// exports.deleteItem = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const result = await ItemModel.deleteItem(id);
-//     if (result.affectedRows === 0) return res.status(404).json({ message: 'Item not found' });
-//     res.json({ message: 'Item deleted' });
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Update item
-// exports.updateItem = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const result = await ItemModel.updateItem(id, req.body);
-//     if (result.affectedRows === 0) return res.status(404).json({ message: 'Item not found' });
-//     res.json({ message: 'Item updated successfully' });
-//   } catch (err) {
-//     console.error('Error updating item:', err.message);
-//     res.status(500).json({ message: 'Server error' });
-//   }
-// };
-
-
-
-
-//correct code the clerk add bar code during add item code
-
-
-// const ItemModel = require('../models/itemModel');
-// const bwipjs = require('bwip-js');
-// const fs = require('fs');
-// const path = require('path');
-
-// // Add item and generate barcode image
-// exports.addItem = async (req, res) => {
-//   try {
-//     const { name, serial_no, description, quantity, is_available } = req.body;
-
-//     // Generate barcode with serial number
-//     const barcodeBuffer = await bwipjs.toBuffer({
-//       bcid: 'code128',
-//       text: serial_no,
-//       scale: 3,
-//       height: 10,
-//       includetext: true,
-//       textxalign: 'center',
-//     });
-
-//     // Save barcode image
-//     const barcodeDir = path.join(__dirname, '..', 'public', 'barcodes');
-//     if (!fs.existsSync(barcodeDir)) fs.mkdirSync(barcodeDir, { recursive: true });
-
-//     const barcodeFilename = `${serial_no}.png`;
-//     const barcodePath = path.join(barcodeDir, barcodeFilename);
-//     fs.writeFileSync(barcodePath, barcodeBuffer);
-//     const barcodeUrl = `/barcodes/${barcodeFilename}`;
-
-//     // Save item to DB
-//     const result = await ItemModel.addItem(name, serial_no, description, quantity, is_available, barcodeUrl);
-
-//     res.status(201).json({
-//       message: 'Item added successfully',
-//       itemId: result.insertId,
-//       serial_no,
-//       barcode: barcodeUrl,
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Get all items (in stock)
-// exports.getAllItems = async (req, res) => {
-//   try {
-//     const items = await ItemModel.getAllItems();
-//     res.status(200).json(items);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Get all given items
-// exports.getAllGivenItems = async (req, res) => {
-//   try {
-//     const items = await ItemModel.getAllGivenItems();
-//     res.status(200).json(items);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Get single item by ID
-// exports.getItemById = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const item = await ItemModel.getItemById(id);
-//     if (!item) return res.status(404).json({ message: 'Item not found' });
-//     res.status(200).json(item);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Get item by barcode (serial number)
-// exports.getItemByBarcode = async (req, res) => {
-//   try {
-//     const { code } = req.params;
-//     const item = await ItemModel.getItemBySerial(code);
-//     if (!item) return res.status(404).json({ message: 'Item not found' });
-//     res.status(200).json(item);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Request item
-// exports.requestItem = async (req, res) => {
-//   try {
-//     const { itemId, staffId } = req.body;
-//     const result = await ItemModel.requestItem(itemId, staffId);
-//     if (!result) return res.status(404).json({ message: 'Item not found or already requested' });
-//     res.status(201).json({ message: 'Item requested successfully', requestId: result.insertId });
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Approve request
-// exports.approveRequest = async (req, res) => {
-//   try {
-//     const { requestId } = req.params;
-//     const clerkId = req.user.id; // Assuming clerk ID comes from auth middleware
-//     const result = await ItemModel.approveRequest(requestId, clerkId);
-//     if (!result) return res.status(404).json({ message: 'Request not found or already processed' });
-//     res.status(200).json({ message: 'Request approved and item assigned successfully' });
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Delete item
-// exports.deleteItem = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const result = await ItemModel.deleteItem(id);
-//     if (result.affectedRows === 0) return res.status(404).json({ message: 'Item not found' });
-//     res.json({ message: 'Item deleted' });
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Update item
-// exports.updateItem = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const result = await ItemModel.updateItem(id, req.body);
-//     if (result.affectedRows === 0) return res.status(404).json({ message: 'Item not found' });
-//     res.json({ message: 'Item updated successfully' });
-//   } catch (err) {
-//     console.error('Error updating item:', err.message);
-//     res.status(500).json({ message: 'Server error' });
-//   }
-// };
-
-
-// const ItemModel = require('../models/itemModel');
-// const bwipjs = require('bwip-js');
-// const fs = require('fs');
-// const path = require('path');
-
-// // Add item and generate barcode image
+// // Add item and generate barcode image with real-time notification
 // exports.addItem = async (req, res) => {
 //   try {
 //     const { name, serial_no, description, quantity, is_available } = req.body;
 
 //     // Generate barcode image buffer using serial_no
 //     const barcodeBuffer = await bwipjs.toBuffer({
-//       bcid: 'code128',      // Barcode type
-//       text: serial_no,      // Data to encode
-//       scale: 3,             // 3x scaling factor
-//       height: 10,           // Bar height, in mm
-//       includetext: true,    // Show human-readable text
-//       textxalign: 'center', // Center-align text
-//     });
-
-//     // Ensure barcode directory exists
-//     const barcodeDir = path.join(__dirname, '..', 'public', 'barcodes');
-//     if (!fs.existsSync(barcodeDir)) fs.mkdirSync(barcodeDir, { recursive: true });
-
-//     // Write barcode image to file named after serial_no
-//     const barcodeFilename = `${serial_no}.png`;
-//     const barcodePath = path.join(barcodeDir, barcodeFilename);
-//     fs.writeFileSync(barcodePath, barcodeBuffer);
-
-//     // URL/path saved in DB to reference the barcode image
-//     const barcodeUrl = `/barcodes/${barcodeFilename}`;
-
-//     // Save item with barcode URL to database (adds entry in items and give_items)
-//     const result = await ItemModel.addItem(name, serial_no, description, quantity, is_available, barcodeUrl);
-
-//     res.status(201).json({
-//       message: 'Item added successfully',
-//       itemId: result.itemId,
-//       serial_no,
-//       barcode: barcodeUrl,
-//     });
-//   } catch (err) {
-//     console.error('Add Item Error:', err);
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Get all items (in stock)
-// exports.getAllItems = async (req, res) => {
-//   try {
-//     const items = await ItemModel.getAllItems();
-//     res.status(200).json(items);
-//   } catch (err) {
-//     console.error('Get All Items Error:', err);
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Get all given items (assigned items)
-// exports.getAllGivenItems = async (req, res) => {
-//   try {
-//     const items = await ItemModel.getAllGivenItems();
-//     res.status(200).json(items);
-//   } catch (err) {
-//     console.error('Get All Given Items Error:', err);
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Get single item by ID
-// exports.getItemById = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const item = await ItemModel.getItemById(id);
-//     if (!item) return res.status(404).json({ message: 'Item not found' });
-//     res.status(200).json(item);
-//   } catch (err) {
-//     console.error('Get Item By ID Error:', err);
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Get item by barcode (serial number)
-// exports.getItemByBarcode = async (req, res) => {
-//   try {
-//     const { code } = req.params;
-//     const item = await ItemModel.getItemBySerial(code);
-//     if (!item) return res.status(404).json({ message: 'Item not found' });
-//     res.status(200).json(item);
-//   } catch (err) {
-//     console.error('Get Item By Barcode Error:', err);
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Request item
-// exports.requestItem = async (req, res) => {
-//   try {
-//     const { itemId, staffId } = req.body;
-//     const result = await ItemModel.requestItem(itemId, staffId);
-//     if (!result) return res.status(404).json({ message: 'Item not found or already requested' });
-//     res.status(201).json({ message: 'Item requested successfully', requestId: result.insertId });
-//   } catch (err) {
-//     console.error('Request Item Error:', err);
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Approve request (assign item)
-// exports.approveRequest = async (req, res) => {
-//   try {
-//     const { requestId } = req.params;
-//     const clerkId = req.user.id; // Assuming clerk ID comes from authentication middleware
-//     const result = await ItemModel.approveRequest(requestId, clerkId);
-//     if (!result) return res.status(404).json({ message: 'Request not found or already processed' });
-//     res.status(200).json({ message: 'Request approved and item assigned successfully' });
-//   } catch (err) {
-//     console.error('Approve Request Error:', err);
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Delete item
-// exports.deleteItem = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const result = await ItemModel.deleteItem(id);
-//     if (result.affectedRows === 0) return res.status(404).json({ message: 'Item not found' });
-//     res.json({ message: 'Item deleted' });
-//   } catch (err) {
-//     console.error('Delete Item Error:', err);
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // Update item
-// exports.updateItem = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const result = await ItemModel.updateItem(id, req.body);
-//     if (result.affectedRows === 0) return res.status(404).json({ message: 'Item not found' });
-//     res.json({ message: 'Item updated successfully' });
-//   } catch (err) {
-//     console.error('Update Item Error:', err);
-//     res.status(500).json({ message: 'Server error' });
-//   }
-// };
-
-
-// corect one 
-
-// const ItemModel = require('../models/itemModel');
-// const bwipjs = require('bwip-js');
-// const fs = require('fs');
-// const path = require('path');
-
-// // Add item and generate barcode image
-// exports.addItem = async (req, res) => {
-//   try {
-//     const { name, serial_no, description, quantity, is_available } = req.body;
-
-//     // Generate barcode image buffer using serial_no
-//     const barcodeBuffer = await bwipjs.toBuffer({
-//       bcid: 'code128',      // Barcode type
-//       text: serial_no,      // Data to encode
-//       scale: 3,             // 3x scaling factor
-//       height: 10,           // Bar height, in mm
-//       includetext: true,    // Show human-readable text
-//       textxalign: 'center', // Center-align text
+//       bcid: 'code128',
+//       text: serial_no,
+//       scale: 3,
+//       height: 10,
+//       includetext: true,
+//       textxalign: 'center',
 //     });
 
 //     // Ensure barcode directory exists
@@ -626,9 +44,7 @@
 
 //     // ===== Real-Time Notification =====
 //     const io = req.app.get('io'); // Get Socket.IO instance from server.js
-//     if (io) {
-//       io.emit('new_item', newItem); // Emit new item to all connected clients
-//     }
+//     if (io) io.emit('new_item', newItem); // Emit new item to all connected clients
 
 //     res.status(201).json({
 //       message: 'Item added successfully',
@@ -696,6 +112,15 @@
 //     const { itemId, staffId } = req.body;
 //     const result = await ItemModel.requestItem(itemId, staffId);
 //     if (!result) return res.status(404).json({ message: 'Item not found or already requested' });
+
+//     // ===== Real-Time Notification =====
+//     const io = req.app.get('io');
+//     if (io) io.emit('new_assign_request', {
+//       itemId,
+//       staffId,
+//       requestId: result.insertId,
+//     });
+
 //     res.status(201).json({ message: 'Item requested successfully', requestId: result.insertId });
 //   } catch (err) {
 //     console.error('Request Item Error:', err);
@@ -703,13 +128,21 @@
 //   }
 // };
 
-// // Approve request (assign item)
+// // Approve request (assign item) with real-time notification
 // exports.approveRequest = async (req, res) => {
 //   try {
 //     const { requestId } = req.params;
-//     const clerkId = req.user.id; // Assuming clerk ID comes from authentication middleware
+//     const clerkId = req.user.id;
 //     const result = await ItemModel.approveRequest(requestId, clerkId);
 //     if (!result) return res.status(404).json({ message: 'Request not found or already processed' });
+
+//     // ===== Real-Time Notification =====
+//     const io = req.app.get('io');
+//     if (io) io.emit('assign_request_processed', {
+//       requestId,
+//       clerkId,
+//     });
+
 //     res.status(200).json({ message: 'Request approved and item assigned successfully' });
 //   } catch (err) {
 //     console.error('Approve Request Error:', err);
@@ -736,185 +169,364 @@
 //     const { id } = req.params;
 //     const result = await ItemModel.updateItem(id, req.body);
 //     if (result.affectedRows === 0) return res.status(404).json({ message: 'Item not found' });
-//     res.json({ message: 'Item updated successfully' });
+//     res.json({ message: 'Item updated successfu
+// lly' });
 //   } catch (err) {
 //     console.error('Update Item Error:', err);
 //     res.status(500).json({ message: 'Server error' });
 //   }
 // };
-const ItemModel = require('../models/itemModel');
-const bwipjs = require('bwip-js');
-const fs = require('fs');
-const path = require('path');
 
-// Add item and generate barcode image with real-time notification
-exports.addItem = async (req, res) => {
+// const Item = require('../models/itemModel');
+// const ItemUnit = require('../models/itemUnitModel');
+
+// const addItem = async (req, res) => {
+//   try {
+//     const { Name, Model, TotalQty, ShelfNumber, UnitPriceBirr, UnitPriceCent, Remark, units } = req.body;
+
+//     if (!Name || !TotalQty || !UnitPriceBirr || !UnitPriceCent || !Array.isArray(units) || units.length !== TotalQty) {
+//       return res.status(400).json({ message: 'Invalid input or units count mismatch' });
+//     }
+
+//     // Add item
+//     const itemID = await Item.add({ Name, Model, TotalQty, ShelfNumber, UnitPriceBirr, UnitPriceCent, Remark });
+
+//     // Add item units (with barcodes)
+//     await ItemUnit.addUnits(itemID, units);
+
+//     res.status(201).json({ message: 'Item added successfully', itemID });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Server error', error: err.message });
+//   }
+// };
+
+// module.exports = { addItem };
+// //     );
+// //     return { itemId: result.insertId }; 
+
+
+// const Item = require('../models/itemModel');
+// const ItemUnit = require('../models/itemUnitModel');
+
+// const addItem = async (req, res) => {
+//   try {
+//     let {
+//       Name,
+//       Model,
+//       TotalQty,
+//       ShelfNumber,
+//       UnitPriceBirr,
+//       UnitPriceCent,
+//       Remark,
+//       Description = "", // optional
+//       units
+//     } = req.body;
+
+//     TotalQty = Number(TotalQty) || 0;
+//     UnitPriceBirr = Number(UnitPriceBirr) || 0;
+//     UnitPriceCent = Number(UnitPriceCent) || 0;
+
+//     // Validate required fields
+//     if (!Name || TotalQty <= 0 || UnitPriceBirr < 0 || UnitPriceCent < 0) {
+//       return res.status(400).json({ message: 'Invalid item data' });
+//     }
+
+//     // Ensure units array matches TotalQty
+//     if (!Array.isArray(units)) {
+//       units = [];
+//     }
+
+//     if (units.length < TotalQty) {
+//       // Auto-generate missing units
+//       for (let i = units.length; i < TotalQty; i++) {
+//         units.push({
+//           SerialNo: `SN${String(i + 1).padStart(3, "0")}`,
+//           Barcode: `BC${String(i + 1).padStart(3, "0")}`,
+//           UnitPriceBirr,
+//           UnitPriceCent
+//         });
+//       }
+//     } else if (units.length > TotalQty) {
+//       units = units.slice(0, TotalQty); // trim extra units
+//     }
+
+//     // Add item
+//     const itemID = await Item.add({ Name, Model, TotalQty, ShelfNumber, UnitPriceBirr, UnitPriceCent, Remark, Description });
+
+//     // Add item units
+//     await ItemUnit.addUnits(itemID, units);
+
+//     res.status(201).json({ message: 'Item added successfully', itemID });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Server error', error: err.message });
+//   }
+// };
+//     // Fetch units for each item
+//     // Fetch single item by ID with units
+
+// module.exports = { addItem };
+
+
+// const Item = require('../models/itemModel');
+// const ItemUnit = require('../models/itemUnitModel');
+
+// // Add a new item with units
+// const addItem = async (req, res) => {
+//   try {
+//     let {
+//       Name,
+//       Model,
+//       TotalQty,
+//       ShelfNumber,
+//       UnitPriceBirr,
+//       UnitPriceCent,
+//       Remark,
+//       Description = "", // optional
+//       units
+//     } = req.body;
+
+//     TotalQty = Number(TotalQty) || 0;
+//     UnitPriceBirr = Number(UnitPriceBirr) || 0;
+//     UnitPriceCent = Number(UnitPriceCent) || 0;
+
+//     // Validate required fields
+//     if (!Name || TotalQty <= 0 || UnitPriceBirr < 0 || UnitPriceCent < 0) {
+//       return res.status(400).json({ message: 'Invalid item data' });
+//     }
+
+//     // Ensure units array matches TotalQty
+//     if (!Array.isArray(units)) {
+//       units = [];
+//     }
+
+//     if (units.length < TotalQty) {
+//       // Auto-generate missing units
+//       for (let i = units.length; i < TotalQty; i++) {
+//         units.push({
+//           SerialNo: `SN${String(i + 1).padStart(3, "0")}`,
+//           Barcode: `BC${String(i + 1).padStart(3, "0")}`,
+//           UnitPriceBirr,
+//           UnitPriceCent
+//         });
+//       }
+//     } else if (units.length > TotalQty) {
+//       units = units.slice(0, TotalQty); // trim extra units
+//     }
+
+//     // Add item
+//     const itemID = await Item.add({ Name, Model, TotalQty, ShelfNumber, UnitPriceBirr, UnitPriceCent, Remark, Description });
+
+//     // Add item units
+//     await ItemUnit.addUnits(itemID, units);
+
+//     res.status(201).json({ message: 'Item added successfully', itemID });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Server error', error: err.message });
+//   }
+// };
+
+// // Fetch all items with units
+// const getAllItems = async (req, res) => {
+//   try {
+//     const items = await Item.getAll();
+
+//     const itemsWithUnits = await Promise.all(
+//       items.map(async (item) => {
+//         const units = await ItemUnit.getByItemId(item.ItemID);
+//         return { ...item, units };
+//       })
+//     );
+
+//     res.status(200).json(itemsWithUnits);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Server error', error: err.message });
+//   }
+// };
+
+// // Fetch a single item by ID with units
+// const getItemById = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const item = await Item.getById(id);
+//     if (!item) return res.status(404).json({ message: 'Item not found' });
+
+//     const units = await ItemUnit.getByItemId(id);
+//     res.status(200).json({ ...item, units });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Server error', error: err.message });
+//   }
+// };
+
+// module.exports = { addItem, getAllItems, getItemById };
+const Item = require('../models/itemModel');
+const ItemUnit = require('../models/itemUnitModel');
+
+// Add a new item with units and notify clients in real-time
+const addItem = async (req, res) => {
   try {
-    const { name, serial_no, description, quantity, is_available } = req.body;
+    let {
+      Name,
+      Model,
+      TotalQty,
+      ShelfNumber,
+      UnitPriceBirr,
+      UnitPriceCent,
+      Remark,
+      Description = "", // optional
+      units
+    } = req.body;
 
-    // Generate barcode image buffer using serial_no
-    const barcodeBuffer = await bwipjs.toBuffer({
-      bcid: 'code128',
-      text: serial_no,
-      scale: 3,
-      height: 10,
-      includetext: true,
-      textxalign: 'center',
-    });
+    TotalQty = Number(TotalQty) || 0;
+    UnitPriceBirr = Number(UnitPriceBirr) || 0;
+    UnitPriceCent = Number(UnitPriceCent) || 0;
 
-    // Ensure barcode directory exists
-    const barcodeDir = path.join(__dirname, '..', 'public', 'barcodes');
-    if (!fs.existsSync(barcodeDir)) fs.mkdirSync(barcodeDir, { recursive: true });
+    // Validate required fields
+    if (!Name || TotalQty <= 0 || UnitPriceBirr < 0 || UnitPriceCent < 0) {
+      return res.status(400).json({ message: 'Invalid item data' });
+    }
 
-    const barcodeFilename = `${serial_no}.png`;
-    const barcodePath = path.join(barcodeDir, barcodeFilename);
-    fs.writeFileSync(barcodePath, barcodeBuffer);
+    // Ensure units array exists
+    if (!Array.isArray(units)) units = [];
 
-    const barcodeUrl = `/barcodes/${barcodeFilename}`;
+    // Auto-generate missing units
+    if (units.length < TotalQty) {
+      for (let i = units.length; i < TotalQty; i++) {
+        units.push({
+          SerialNo: `SN${String(i + 1).padStart(3, "0")}`,
+          UnitPriceBirr,
+          UnitPriceCent,
+          Status: 'AVAILABLE',
+          AssignedTo: null
+        });
+      }
+    } else if (units.length > TotalQty) {
+      units = units.slice(0, TotalQty); // trim extra units
+    }
 
-    // Save item with barcode URL to database
-    const result = await ItemModel.addItem(name, serial_no, description, quantity, is_available, barcodeUrl);
+    // Add item
+    const itemID = await Item.add({ Name, Model, TotalQty, ShelfNumber, UnitPriceBirr, UnitPriceCent, Remark, Description });
 
-    const newItem = {
-      id: result.itemId,
-      name,
-      serial_no,
-      description,
-      quantity,
-      is_available,
-      barcode: barcodeUrl,
-    };
+    // Add item units
+    await ItemUnit.addUnits(itemID, units);
 
-    // ===== Real-Time Notification =====
-    const io = req.app.get('io'); // Get Socket.IO instance from server.js
-    if (io) io.emit('new_item', newItem); // Emit new item to all connected clients
+    // Real-time notification via Socket.IO
+    if (req.io) {
+      req.io.emit('newItemAdded', {
+        ItemID: itemID,
+        Name,
+        Model,
+        TotalQty,
+        ShelfNumber,
+        UnitPriceBirr,
+        UnitPriceCent,
+        Remark,
+        Description
+      });
+    }
 
-    res.status(201).json({
-      message: 'Item added successfully',
-      itemId: result.itemId,
-      serial_no,
-      barcode: barcodeUrl,
-    });
+    res.status(201).json({ message: 'Item added successfully', itemID });
   } catch (err) {
-    console.error('Add Item Error:', err);
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 
-// Get all items (in stock)
-exports.getAllItems = async (req, res) => {
+// Fetch all items with units
+const getAllItems = async (req, res) => {
   try {
-    const items = await ItemModel.getAllItems();
-    res.status(200).json(items);
+    const items = await Item.getAll();
+    const itemsWithUnits = await Promise.all(
+      items.map(async (item) => {
+        const units = await ItemUnit.getByItemId(item.ItemID);
+        return { ...item, units };
+      })
+    );
+    res.status(200).json(itemsWithUnits);
   } catch (err) {
-    console.error('Get All Items Error:', err);
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 
-// Get all given items (assigned items)
-exports.getAllGivenItems = async (req, res) => {
-  try {
-    const items = await ItemModel.getAllGivenItems();
-    res.status(200).json(items);
-  } catch (err) {
-    console.error('Get All Given Items Error:', err);
-    res.status(500).json({ message: err.message });
-  }
-};
-
-// Get single item by ID
-exports.getItemById = async (req, res) => {
+// Fetch a single item by ID with units
+const getItemById = async (req, res) => {
   try {
     const { id } = req.params;
-    const item = await ItemModel.getItemById(id);
+    const item = await Item.getById(id);
     if (!item) return res.status(404).json({ message: 'Item not found' });
-    res.status(200).json(item);
+
+    const units = await ItemUnit.getByItemId(id);
+    res.status(200).json({ ...item, units });
   } catch (err) {
-    console.error('Get Item By ID Error:', err);
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 
-// Get item by barcode (serial number)
-exports.getItemByBarcode = async (req, res) => {
+// Update an item and its units
+const updateItem = async (req, res) => {
   try {
-    const { code } = req.params;
-    const item = await ItemModel.getItemBySerial(code);
+    const { id } = req.params;
+    const item = await Item.getById(id);
     if (!item) return res.status(404).json({ message: 'Item not found' });
-    res.status(200).json(item);
+
+    const { Name, Model, TotalQty, ShelfNumber, UnitPriceBirr, UnitPriceCent, Remark, Description, units } = req.body;
+
+    // Update item
+    await Item.update(id, { Name, Model, TotalQty, ShelfNumber, UnitPriceBirr, UnitPriceCent, Remark, Description });
+
+    // Optionally update units if provided
+    if (Array.isArray(units)) {
+      for (const unit of units) {
+        if (unit.UnitID) {
+          await ItemUnit.updateUnit(unit.UnitID, unit);
+        }
+      }
+    }
+
+    // Real-time notification
+    if (req.io) {
+      req.io.emit('itemUpdated', { ItemID: id });
+    }
+
+    res.status(200).json({ message: 'Item updated successfully' });
   } catch (err) {
-    console.error('Get Item By Barcode Error:', err);
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 
-// Request item
-exports.requestItem = async (req, res) => {
-  try {
-    const { itemId, staffId } = req.body;
-    const result = await ItemModel.requestItem(itemId, staffId);
-    if (!result) return res.status(404).json({ message: 'Item not found or already requested' });
-
-    // ===== Real-Time Notification =====
-    const io = req.app.get('io');
-    if (io) io.emit('new_assign_request', {
-      itemId,
-      staffId,
-      requestId: result.insertId,
-    });
-
-    res.status(201).json({ message: 'Item requested successfully', requestId: result.insertId });
-  } catch (err) {
-    console.error('Request Item Error:', err);
-    res.status(500).json({ message: err.message });
-  }
-};
-
-// Approve request (assign item) with real-time notification
-exports.approveRequest = async (req, res) => {
-  try {
-    const { requestId } = req.params;
-    const clerkId = req.user.id;
-    const result = await ItemModel.approveRequest(requestId, clerkId);
-    if (!result) return res.status(404).json({ message: 'Request not found or already processed' });
-
-    // ===== Real-Time Notification =====
-    const io = req.app.get('io');
-    if (io) io.emit('assign_request_processed', {
-      requestId,
-      clerkId,
-    });
-
-    res.status(200).json({ message: 'Request approved and item assigned successfully' });
-  } catch (err) {
-    console.error('Approve Request Error:', err);
-    res.status(500).json({ message: err.message });
-  }
-};
-
-// Delete item
-exports.deleteItem = async (req, res) => {
+// Delete an item and its units
+const deleteItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await ItemModel.deleteItem(id);
-    if (result.affectedRows === 0) return res.status(404).json({ message: 'Item not found' });
-    res.json({ message: 'Item deleted' });
+    const item = await Item.getById(id);
+    if (!item) return res.status(404).json({ message: 'Item not found' });
+
+    // Delete all associated units first
+    const units = await ItemUnit.getByItemId(id);
+    for (const unit of units) {
+      await ItemUnit.deleteUnit(unit.UnitID);
+    }
+
+    // Delete item
+    await Item.delete(id);
+
+    // Real-time notification
+    if (req.io) {
+      req.io.emit('itemDeleted', { ItemID: id });
+    }
+
+    res.status(200).json({ message: 'Item and its units deleted successfully' });
   } catch (err) {
-    console.error('Delete Item Error:', err);
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 
-// Update item
-exports.updateItem = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await ItemModel.updateItem(id, req.body);
-    if (result.affectedRows === 0) return res.status(404).json({ message: 'Item not found' });
-    res.json({ message: 'Item updated successfully' });
-  } catch (err) {
-    console.error('Update Item Error:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+module.exports = { addItem, getAllItems, getItemById, updateItem, deleteItem };

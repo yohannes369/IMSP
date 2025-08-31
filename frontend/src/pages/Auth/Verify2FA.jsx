@@ -587,239 +587,15 @@
 //  corect one
 
 
-import React, { useState, useRef, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
-import Footer from "../../components/Footer/Footer";
-import { FaShieldAlt, FaCheckCircle, FaSpinner } from "react-icons/fa";
-
-const BASE_URL = "http://localhost:5000/api/auth";
-
-// Cal Poly color palette
-const calPolyGreen = "#154734";
-const calPolyGold = "#C4820E";
-const lightGreen = "#E8F4EA";
-
-const Verify2FA = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const email = location.state?.email;
-
-  const [code, setCode] = useState(new Array(6).fill(""));
-  const [message, setMessage] = useState({ text: "", type: "" });
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const inputsRef = useRef([]);
-
-  // Redirect to login if no email is passed
-  useEffect(() => {
-    if (!email) navigate("/login");
-  }, [email, navigate]);
-
-  // Handle input change
-  const handleChange = (element, index) => {
-    if (!/^\d*$/.test(element.value)) return; // only digits
-    const newCode = [...code];
-    newCode[index] = element.value;
-    setCode(newCode);
-
-    if (element.value && index < 5) inputsRef.current[index + 1].focus();
-  };
-
-  // Handle backspace navigation
-  const handleKeyDown = (e, index) => {
-    if (e.key === "Backspace" && !code[index] && index > 0) {
-      const newCode = [...code];
-      newCode[index - 1] = "";
-      setCode(newCode);
-      inputsRef.current[index - 1].focus();
-    }
-  };
-
-  // Verify 2FA code
-  const handleVerify = async (e) => {
-    e.preventDefault();
-    setMessage({ text: "", type: "" });
-    setLoading(true);
-
-    const fullCode = code.join("");
-    if (fullCode.length < 6) {
-      setMessage({ text: "Please enter all 6 digits", type: "error" });
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const res = await axios.post(`${BASE_URL}/verify-2fa`, { email, code: fullCode });
-      const { token, user } = res.data;
-
-      // Save token, role, and user info
-      localStorage.setItem("token", token);
-      localStorage.setItem("role", user.role || "guest");
-      localStorage.setItem("user", JSON.stringify(user));
-
-      setMessage({ text: "2FA verified successfully!", type: "success" });
-      setSuccess(true);
-
-      // Redirect based on role after short delay
-      setTimeout(() => {
-        switch (user.role) {
-          case "admin":
-            navigate("/admin/dashboard");
-            break;
-          case "manager":
-            navigate("/mdashboard");
-            break;
-          case "clerk":
-            navigate("/clerk");
-            break;
-          case "staff":
-            navigate("/staff");
-            break;
-          case "guest":
-          default:
-            navigate("/guest");
-        }
-      }, 1500);
-    } catch (error) {
-      setMessage({ 
-        text: error.response?.data?.message || "Invalid 2FA code", 
-        type: "error" 
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (!email) {
-    return (
-      <div className="min-h-screen flex flex-col" style={{ backgroundColor: lightGreen }}>
-        <div className="flex-grow flex items-center justify-center p-6">
-          <div className="max-w-md w-full p-8 bg-white rounded-xl shadow-lg border border-red-200 text-center">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">Session Expired</h2>
-            <p className="text-gray-700 mb-6">
-              No email found for 2FA verification. Please login again.
-            </p>
-            <button
-              onClick={() => navigate("/login")}
-              className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all`}
-              style={{ backgroundColor: calPolyGreen }}
-            >
-              Go to Login
-            </button>
-          </div>
-        </div>
-        <Footer bgColor={calPolyGreen} textColor="white" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: lightGreen }}>
-      <div className="flex-grow flex items-center justify-center p-6">
-        <div className="max-w-md w-full p-8 bg-white rounded-xl shadow-lg border border-green-200">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4" style={{ color: calPolyGreen }}>
-              {success ? (
-                <FaCheckCircle className="text-5xl animate-pulse" />
-              ) : (
-                <FaShieldAlt className="text-5xl" />
-              )}
-            </div>
-            <h2 className="text-3xl font-bold mb-2" style={{ color: calPolyGreen }}>
-              Two-Factor Authentication
-            </h2>
-            <p className="text-gray-600">
-              Enter the 6-digit code sent to your email:
-            </p>
-            <p className="mt-2 font-semibold break-words" style={{ color: calPolyGreen }}>
-              {email}
-            </p>
-          </div>
-
-          <form onSubmit={handleVerify} className="space-y-6">
-            <div className="flex justify-center gap-3 mb-6">
-              {code.map((digit, index) => (
-                <input
-                  key={index}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  className="w-12 h-12 text-center text-xl rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  style={{ borderColor: calPolyGreen }}
-                  value={digit}
-                  onChange={(e) => handleChange(e.target, index)}
-                  onKeyDown={(e) => handleKeyDown(e, index)}
-                  ref={(el) => (inputsRef.current[index] = el)}
-                  autoComplete="one-time-code"
-                  disabled={loading || success}
-                />
-              ))}
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading || success}
-              className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all ${
-                loading || success
-                  ? "bg-green-400 cursor-not-allowed"
-                  : "hover:bg-green-700 shadow-md hover:shadow-lg"
-              }`}
-              style={{ backgroundColor: calPolyGreen }}
-            >
-              {loading ? (
-                <span className="flex items-center justify-center">
-                  <FaSpinner className="animate-spin mr-2" />
-                  Verifying...
-                </span>
-              ) : success ? (
-                "Verified Successfully!"
-              ) : (
-                "Verify Code"
-              )}
-            </button>
-          </form>
-
-          {message.text && (
-            <div className={`mt-6 p-4 rounded-lg text-center ${
-              message.type === "error" 
-                ? "bg-red-100 text-red-700" 
-                : "bg-green-100 text-green-700"
-            }`}>
-              {message.text}
-            </div>
-          )}
-
-          <div className="mt-6 text-center text-sm text-gray-500">
-            Didn't receive a code?{" "}
-            <button 
-              className="font-medium hover:underline" 
-              style={{ color: calPolyGold }}
-              onClick={() => alert("Resend functionality would go here")}
-            >
-              Resend code
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <Footer bgColor={calPolyGreen} textColor="white" />
-    </div>
-  );
-};
-
-export default Verify2FA;
-
-
 // import React, { useState, useRef, useEffect } from "react";
-// import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+// import { useLocation, useNavigate } from "react-router-dom";
 // import axios from "axios";
 // import Footer from "../../components/Footer/Footer";
 // import { FaShieldAlt, FaCheckCircle, FaSpinner } from "react-icons/fa";
 
 // const BASE_URL = "http://localhost:5000/api/auth";
 
-// // Cal Poly colors
+// // Cal Poly color palette
 // const calPolyGreen = "#154734";
 // const calPolyGold = "#C4820E";
 // const lightGreen = "#E8F4EA";
@@ -827,94 +603,69 @@ export default Verify2FA;
 // const Verify2FA = () => {
 //   const location = useLocation();
 //   const navigate = useNavigate();
-//   const [searchParams] = useSearchParams();
+//   const email = location.state?.email;
 
-//   // Try to get email from state or URL query params
-//   const emailFromState = location.state?.email;
-//   const emailFromQuery = searchParams.get("email");
-//   const oauthToken = searchParams.get("token");
-
-//   const email = emailFromState || emailFromQuery;
-
-//   const [code, setCode] = useState(Array(6).fill(""));
+//   const [code, setCode] = useState(new Array(6).fill(""));
+//   const [message, setMessage] = useState({ text: "", type: "" });
 //   const [loading, setLoading] = useState(false);
 //   const [success, setSuccess] = useState(false);
-//   const [message, setMessage] = useState({ text: "", type: "" });
 //   const inputsRef = useRef([]);
 
-//   // Redirect to login only if no email AND no OAuth token
+//   // Redirect to login if no email is passed
 //   useEffect(() => {
-//     if (!email && !oauthToken && !localStorage.getItem("token")) {
-//       navigate("/login");
-//     } else if (oauthToken) {
-//       // Save OAuth token if available
-//       localStorage.setItem("token", oauthToken);
-//     }
-//   }, [email, oauthToken, navigate]);
+//     if (!email) navigate("/login");
+//   }, [email, navigate]);
 
-//   // Focus first input on mount
-//   useEffect(() => {
-//     inputsRef.current[0]?.focus();
-//   }, []);
-
-//   // Handle digit input
-//   const handleChange = (e, index) => {
-//     const val = e.target.value;
-//     if (!/^\d?$/.test(val)) return; // only digits
+//   // Handle input change
+//   const handleChange = (element, index) => {
+//     if (!/^\d*$/.test(element.value)) return; // only digits
 //     const newCode = [...code];
-//     newCode[index] = val;
+//     newCode[index] = element.value;
 //     setCode(newCode);
-//     if (val && index < 5) inputsRef.current[index + 1].focus();
+
+//     if (element.value && index < 5) inputsRef.current[index + 1].focus();
 //   };
 
-//   // Handle backspace & arrow navigation
+//   // Handle backspace navigation
 //   const handleKeyDown = (e, index) => {
-//     if (e.key === "Backspace") {
-//       e.preventDefault();
+//     if (e.key === "Backspace" && !code[index] && index > 0) {
 //       const newCode = [...code];
-//       if (newCode[index]) {
-//         newCode[index] = "";
-//         setCode(newCode);
-//       } else if (index > 0) {
-//         inputsRef.current[index - 1].focus();
-//         const prevCode = [...code];
-//         prevCode[index - 1] = "";
-//         setCode(prevCode);
-//       }
-//     } else if (e.key === "ArrowLeft" && index > 0) {
+//       newCode[index - 1] = "";
+//       setCode(newCode);
 //       inputsRef.current[index - 1].focus();
-//     } else if (e.key === "ArrowRight" && index < 5) {
-//       inputsRef.current[index + 1].focus();
 //     }
 //   };
 
-//   // Verify 2FA
+//   // Verify 2FA code
 //   const handleVerify = async (e) => {
 //     e.preventDefault();
 //     setMessage({ text: "", type: "" });
+//     setLoading(true);
+
 //     const fullCode = code.join("");
 //     if (fullCode.length < 6) {
 //       setMessage({ text: "Please enter all 6 digits", type: "error" });
+//       setLoading(false);
 //       return;
 //     }
 
-//     setLoading(true);
 //     try {
 //       const res = await axios.post(`${BASE_URL}/verify-2fa`, { email, code: fullCode });
 //       const { token, user } = res.data;
 
-//       // Save token and user info
+//       // Save token, role, and user info
 //       localStorage.setItem("token", token);
 //       localStorage.setItem("role", user.role || "guest");
 //       localStorage.setItem("user", JSON.stringify(user));
 
-//       setSuccess(true);
 //       setMessage({ text: "2FA verified successfully!", type: "success" });
+//       setSuccess(true);
 
+//       // Redirect based on role after short delay
 //       setTimeout(() => {
 //         switch (user.role) {
 //           case "admin":
-//             navigate("/admin");
+//             navigate("/admin/dashboard");
 //             break;
 //           case "manager":
 //             navigate("/mdashboard");
@@ -925,30 +676,33 @@ export default Verify2FA;
 //           case "staff":
 //             navigate("/staff");
 //             break;
+//           case "guest":
 //           default:
 //             navigate("/guest");
 //         }
-//       }, 1200);
-//     } catch (err) {
-//       setMessage({
-//         text: err.response?.data?.message || "Invalid 2FA code",
-//         type: "error",
+//       }, 1500);
+//     } catch (error) {
+//       setMessage({ 
+//         text: error.response?.data?.message || "Invalid 2FA code", 
+//         type: "error" 
 //       });
 //     } finally {
 //       setLoading(false);
 //     }
 //   };
 
-//   if (!email && !oauthToken) {
+//   if (!email) {
 //     return (
 //       <div className="min-h-screen flex flex-col" style={{ backgroundColor: lightGreen }}>
 //         <div className="flex-grow flex items-center justify-center p-6">
 //           <div className="max-w-md w-full p-8 bg-white rounded-xl shadow-lg border border-red-200 text-center">
 //             <h2 className="text-2xl font-bold text-red-600 mb-4">Session Expired</h2>
-//             <p className="text-gray-700 mb-6">No email or token found for 2FA verification. Please login again.</p>
+//             <p className="text-gray-700 mb-6">
+//               No email found for 2FA verification. Please login again.
+//             </p>
 //             <button
 //               onClick={() => navigate("/login")}
-//               className="w-full py-3 px-4 rounded-lg font-semibold text-white"
+//               className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all`}
 //               style={{ backgroundColor: calPolyGreen }}
 //             >
 //               Go to Login
@@ -966,11 +720,21 @@ export default Verify2FA;
 //         <div className="max-w-md w-full p-8 bg-white rounded-xl shadow-lg border border-green-200">
 //           <div className="text-center mb-8">
 //             <div className="flex justify-center mb-4" style={{ color: calPolyGreen }}>
-//               {success ? <FaCheckCircle className="text-5xl animate-pulse" /> : <FaShieldAlt className="text-5xl" />}
+//               {success ? (
+//                 <FaCheckCircle className="text-5xl animate-pulse" />
+//               ) : (
+//                 <FaShieldAlt className="text-5xl" />
+//               )}
 //             </div>
-//             <h2 className="text-3xl font-bold mb-2" style={{ color: calPolyGreen }}>Two-Factor Authentication</h2>
-//             <p className="text-gray-600">Enter the 6-digit code sent to your email:</p>
-//             {email && <p className="mt-2 font-semibold break-words" style={{ color: calPolyGreen }}>{email}</p>}
+//             <h2 className="text-3xl font-bold mb-2" style={{ color: calPolyGreen }}>
+//               Two-Factor Authentication
+//             </h2>
+//             <p className="text-gray-600">
+//               Enter the 6-digit code sent to your email:
+//             </p>
+//             <p className="mt-2 font-semibold break-words" style={{ color: calPolyGreen }}>
+//               {email}
+//             </p>
 //           </div>
 
 //           <form onSubmit={handleVerify} className="space-y-6">
@@ -979,13 +743,12 @@ export default Verify2FA;
 //                 <input
 //                   key={index}
 //                   type="text"
-//                   pattern="\d*"
 //                   inputMode="numeric"
 //                   maxLength={1}
-//                   className="w-12 h-12 text-center text-xl rounded border focus:outline-none focus:ring-2"
+//                   className="w-12 h-12 text-center text-xl rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
 //                   style={{ borderColor: calPolyGreen }}
 //                   value={digit}
-//                   onChange={(e) => handleChange(e, index)}
+//                   onChange={(e) => handleChange(e.target, index)}
 //                   onKeyDown={(e) => handleKeyDown(e, index)}
 //                   ref={(el) => (inputsRef.current[index] = el)}
 //                   autoComplete="one-time-code"
@@ -997,12 +760,17 @@ export default Verify2FA;
 //             <button
 //               type="submit"
 //               disabled={loading || success}
-//               className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all ${loading || success ? "bg-green-400 cursor-not-allowed" : "hover:bg-green-700 shadow-md hover:shadow-lg"}`}
+//               className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all ${
+//                 loading || success
+//                   ? "bg-green-400 cursor-not-allowed"
+//                   : "hover:bg-green-700 shadow-md hover:shadow-lg"
+//               }`}
 //               style={{ backgroundColor: calPolyGreen }}
 //             >
 //               {loading ? (
 //                 <span className="flex items-center justify-center">
-//                   <FaSpinner className="animate-spin mr-2" /> Verifying...
+//                   <FaSpinner className="animate-spin mr-2" />
+//                   Verifying...
 //                 </span>
 //               ) : success ? (
 //                 "Verified Successfully!"
@@ -1013,23 +781,255 @@ export default Verify2FA;
 //           </form>
 
 //           {message.text && (
-//             <div className={`mt-6 p-4 rounded-lg text-center ${message.type === "error" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+//             <div className={`mt-6 p-4 rounded-lg text-center ${
+//               message.type === "error" 
+//                 ? "bg-red-100 text-red-700" 
+//                 : "bg-green-100 text-green-700"
+//             }`}>
 //               {message.text}
 //             </div>
 //           )}
 
 //           <div className="mt-6 text-center text-sm text-gray-500">
 //             Didn't receive a code?{" "}
-//             <button className="font-medium hover:underline" style={{ color: calPolyGold }} onClick={() => alert("Resend functionality goes here")}>
+//             <button 
+//               className="font-medium hover:underline" 
+//               style={{ color: calPolyGold }}
+//               onClick={() => alert("Resend functionality would go here")}
+//             >
 //               Resend code
 //             </button>
 //           </div>
 //         </div>
 //       </div>
-
+      
 //       <Footer bgColor={calPolyGreen} textColor="white" />
 //     </div>
 //   );
 // };
 
 // export default Verify2FA;
+
+
+import React, { useState, useRef, useEffect } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import axios from "axios";
+import Footer from "../../components/Footer/Footer";
+import { FaShieldAlt, FaCheckCircle, FaSpinner } from "react-icons/fa";
+
+const BASE_URL = "http://localhost:5000/api/auth";
+
+// Cal Poly colors
+const calPolyGreen = "#154734";
+const calPolyGold = "#C4820E";
+const lightGreen = "#E8F4EA";
+
+const Verify2FA = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Try to get email from state or URL query params
+  const emailFromState = location.state?.email;
+  const emailFromQuery = searchParams.get("email");
+  const oauthToken = searchParams.get("token");
+
+  const email = emailFromState || emailFromQuery;
+
+  const [code, setCode] = useState(Array(6).fill(""));
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [message, setMessage] = useState({ text: "", type: "" });
+  const inputsRef = useRef([]);
+
+  // Redirect to login only if no email AND no OAuth token
+  useEffect(() => {
+    if (!email && !oauthToken && !localStorage.getItem("token")) {
+      navigate("/login");
+    } else if (oauthToken) {
+      // Save OAuth token if available
+      localStorage.setItem("token", oauthToken);
+    }
+  }, [email, oauthToken, navigate]);
+
+  // Focus first input on mount
+  useEffect(() => {
+    inputsRef.current[0]?.focus();
+  }, []);
+
+  // Handle digit input
+  const handleChange = (e, index) => {
+    const val = e.target.value;
+    if (!/^\d?$/.test(val)) return; // only digits
+    const newCode = [...code];
+    newCode[index] = val;
+    setCode(newCode);
+    if (val && index < 5) inputsRef.current[index + 1].focus();
+  };
+
+  // Handle backspace & arrow navigation
+  const handleKeyDown = (e, index) => {
+    if (e.key === "Backspace") {
+      e.preventDefault();
+      const newCode = [...code];
+      if (newCode[index]) {
+        newCode[index] = "";
+        setCode(newCode);
+      } else if (index > 0) {
+        inputsRef.current[index - 1].focus();
+        const prevCode = [...code];
+        prevCode[index - 1] = "";
+        setCode(prevCode);
+      }
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      inputsRef.current[index - 1].focus();
+    } else if (e.key === "ArrowRight" && index < 5) {
+      inputsRef.current[index + 1].focus();
+    }
+  };
+
+  // Verify 2FA
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    setMessage({ text: "", type: "" });
+    const fullCode = code.join("");
+    if (fullCode.length < 6) {
+      setMessage({ text: "Please enter all 6 digits", type: "error" });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await axios.post(`${BASE_URL}/verify-2fa`, { email, code: fullCode });
+      const { token, user } = res.data;
+
+      // Save token and user info
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", user.role || "guest");
+      localStorage.setItem("user", JSON.stringify(user));
+
+      setSuccess(true);
+      setMessage({ text: "2FA verified successfully!", type: "success" });
+
+      setTimeout(() => {
+        switch (user.role) {
+          case "admin":
+            navigate("/admin");
+            break;
+          case "manager":
+            navigate("/mdashboard");
+            break;
+          case "clerk":
+            navigate("/clerk");
+            break;
+          case "staff":
+            navigate("/staff");
+            break;
+          default:
+            navigate("/guest");
+        }
+      }, 1200);
+    } catch (err) {
+      setMessage({
+        text: err.response?.data?.message || "Invalid 2FA code",
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!email && !oauthToken) {
+    return (
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: lightGreen }}>
+        <div className="flex-grow flex items-center justify-center p-6">
+          <div className="max-w-md w-full p-8 bg-white rounded-xl shadow-lg border border-red-200 text-center">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">Session Expired</h2>
+            <p className="text-gray-700 mb-6">No email or token found for 2FA verification. Please login again.</p>
+            <button
+              onClick={() => navigate("/login")}
+              className="w-full py-3 px-4 rounded-lg font-semibold text-white"
+              style={{ backgroundColor: calPolyGreen }}
+            >
+              Go to Login
+            </button>
+          </div>
+        </div>
+        <Footer bgColor={calPolyGreen} textColor="white" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: lightGreen }}>
+      <div className="flex-grow flex items-center justify-center p-6">
+        <div className="max-w-md w-full p-8 bg-white rounded-xl shadow-lg border border-green-200">
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-4" style={{ color: calPolyGreen }}>
+              {success ? <FaCheckCircle className="text-5xl animate-pulse" /> : <FaShieldAlt className="text-5xl" />}
+            </div>
+            <h2 className="text-3xl font-bold mb-2" style={{ color: calPolyGreen }}>Two-Factor Authentication</h2>
+            <p className="text-gray-600">Enter the 6-digit code sent to your email:</p>
+            {email && <p className="mt-2 font-semibold break-words" style={{ color: calPolyGreen }}>{email}</p>}
+          </div>
+
+          <form onSubmit={handleVerify} className="space-y-6">
+            <div className="flex justify-center gap-3 mb-6">
+              {code.map((digit, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  pattern="\d*"
+                  inputMode="numeric"
+                  maxLength={1}
+                  className="w-12 h-12 text-center text-xl rounded border focus:outline-none focus:ring-2"
+                  style={{ borderColor: calPolyGreen }}
+                  value={digit}
+                  onChange={(e) => handleChange(e, index)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  ref={(el) => (inputsRef.current[index] = el)}
+                  autoComplete="one-time-code"
+                  disabled={loading || success}
+                />
+              ))}
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || success}
+              className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all ${loading || success ? "bg-green-400 cursor-not-allowed" : "hover:bg-green-700 shadow-md hover:shadow-lg"}`}
+              style={{ backgroundColor: calPolyGreen }}
+            >
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <FaSpinner className="animate-spin mr-2" /> Verifying...
+                </span>
+              ) : success ? (
+                "Verified Successfully!"
+              ) : (
+                "Verify Code"
+              )}
+            </button>
+          </form>
+
+          {message.text && (
+            <div className={`mt-6 p-4 rounded-lg text-center ${message.type === "error" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+              {message.text}
+            </div>
+          )}
+
+          <div className="mt-6 text-center text-sm text-gray-500">
+            Didn't receive a code?{" "}
+            <button className="font-medium hover:underline" style={{ color: calPolyGold }} onClick={() => alert("Resend functionality goes here")}>
+              Resend code
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <Footer bgColor={calPolyGreen} textColor="white" />
+    </div>
+  );
+};
+
+export default Verify2FA;

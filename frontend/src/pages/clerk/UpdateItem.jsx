@@ -1,474 +1,217 @@
 
-// import React, { useEffect, useState } from 'react';
-// import axios from 'axios';
-// import { useParams, useNavigate } from 'react-router-dom';
+// const Item = require('../models/itemModel');
+// const ItemUnit = require('../models/itemUnitModel');
 
-// const UpdateItem = () => {
-//   const { id } = useParams(); // get item ID from URL
-//   const navigate = useNavigate();
-//   const [formData, setFormData] = useState({
-//     name: '',
-//     serial_no: '',
-//     description: '',
-//     quantity: '',
-//     is_available: true,
-//   });
+// // Update an existing item
+// const updateItem = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const {
+//       Name,
+//       Model,
+//       TotalQty,
+//       ShelfNumber,
+//       UnitPriceBirr,
+//       UnitPriceCent,
+//       Remark
+//     } = req.body;
 
-//   useEffect(() => {
-//     const fetchItem = async () => {
-//       try {
-//         const res = await axios.get(`http://localhost:5000/api/items/items/${id}`);
-//         const item = res.data;
-//         setFormData({
-//           name: item.name || '',
-//           serial_no: item.serial_no || '',
-//           description: item.description || '',
-//           quantity: item.quantity || '',
-//           is_available: item.is_available === 1 || item.is_available === true,
+//     // Fetch existing item
+//     const existingItem = await Item.getById(id);
+//     if (!existingItem) return res.status(404).json({ message: 'Item not found' });
+
+//     // Update item in Items table
+//     await Item.update(id, {
+//       Name,
+//       Model,
+//       TotalQty,
+//       ShelfNumber,
+//       UnitPriceBirr,
+//       UnitPriceCent,
+//       Remark
+//     });
+
+//     // Handle quantity increase: add new units if TotalQty increased
+//     if (TotalQty > existingItem.TotalQty) {
+//       const newUnits = [];
+//       for (let i = existingItem.TotalQty; i < TotalQty; i++) {
+//         newUnits.push({
+//           SerialNo: `SN${String(i + 1).padStart(3, "0")}`,
+//           UnitPriceBirr,
+//           UnitPriceCent,
+//           Status: 'AVAILABLE',
+//           AssignedTo: null
 //         });
-//       } catch (error) {
-//         console.error('Error fetching item:', error.message);
-//         alert('Failed to fetch item');
 //       }
-//     };
-
-//     fetchItem();
-//   }, [id]);
-
-//   const handleChange = (e) => {
-//     const { name, value, type, checked } = e.target;
-//     setFormData((prev) => ({
-//       ...prev,
-//       [name]: type === 'checkbox' ? checked : value,
-//     }));
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     try {
-//       await axios.put(`http://localhost:5000/api/items/items/${id}`, formData);
-//       alert('Item updated successfully!');
-//       navigate('/items'); // redirect after update
-//     } catch (error) {
-//       console.error('Error updating item:', error.message);
-//       alert('Failed to update item');
+//       if (newUnits.length > 0) {
+//         await ItemUnit.addUnits(id, newUnits);
+//       }
 //     }
-//   };
 
-//   return (
-//     <div className="update-form" style={{ maxWidth: '500px', margin: 'auto' }}>
-//       <h2>Update Item</h2>
-//       <form onSubmit={handleSubmit}>
-//         <label>Name:
-//           <input
-//             type="text"
-//             name="name"
-//             value={formData.name}
-//             onChange={handleChange}
-//             required
-//           />
-//         </label>
+//     // Real-time notification via Socket.IO
+//     if (req.io) {
+//       req.io.emit('itemUpdated', { ItemID: id });
+//     }
 
-//         <label>Serial No:
-//           <input
-//             type="text"
-//             name="serial_no"
-//             value={formData.serial_no}
-//             onChange={handleChange}
-//             required
-//           />
-//         </label>
-
-//         <label>Description:
-//           <textarea
-//             name="description"
-//             value={formData.description}
-//             onChange={handleChange}
-//           />
-//         </label>
-
-//         <label>Quantity:
-//           <input
-//             type="number"
-//             name="quantity"
-//             value={formData.quantity}
-//             onChange={handleChange}
-//             required
-//           />
-//         </label>
-
-//         <label>Available:
-//           <input
-//             type="checkbox"
-//             name="is_available"
-//             checked={formData.is_available}
-//             onChange={handleChange}
-//           />
-//         </label>
-
-//         <button type="submit">Update Item</button>
-//       </form>
-//     </div>
-//   );
+//     res.status(200).json({ message: 'Item updated successfully' });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Server error', error: err.message });
+//   }
 // };
 
-// export default UpdateItem;
-
-// corct one
-
-// import React, { useEffect, useState } from 'react';
-// import axios from 'axios';
-// import { useParams, useNavigate } from 'react-router-dom';
-
-// const UpdateItem = () => {
-//   const { id } = useParams();
-//   const navigate = useNavigate();
-//   const [formData, setFormData] = useState({
-//     name: '',
-//     serial_no: '',
-//     description: '',
-//     quantity: '',
-//     is_available: true,
-//   });
-
-//   useEffect(() => {
-//     const fetchItem = async () => {
-//       try {
-//         const res = await axios.get(`http://localhost:5000/api/items/items/${id}`);
-//         const item = res.data;
-//         setFormData({
-//           name: item.name || '',
-//           serial_no: item.serial_no || '',
-//           description: item.description || '',
-//           quantity: item.quantity || '',
-//           is_available: item.is_available === 1 || item.is_available === true,
-//         });
-//       } catch (error) {
-//         console.error('Error fetching item:', error.message);
-//         alert('Failed to fetch item');
-//       }
-//     };
-
-//     fetchItem();
-//   }, [id]);
-
-//   const handleChange = (e) => {
-//     const { name, value, type, checked } = e.target;
-//     setFormData((prev) => ({
-//       ...prev,
-//       [name]: type === 'checkbox' ? checked : value,
-//     }));
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     try {
-//       await axios.put(`http://localhost:5000/api/items/items/${id}`, formData);
-//       alert('Item updated successfully!');
-//       navigate('/items');
-//     } catch (error) {
-//       console.error('Error updating item:', error.message);
-//       alert('Failed to update item');
-//     }
-//   };
-
-//   return (
-//     <div className="max-w-lg mx-auto mt-10 bg-white shadow-md rounded-xl p-8">
-//       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-700">Update Item</h2>
-//       <form onSubmit={handleSubmit} className="space-y-5">
-//         <div>
-//           <label className="block text-gray-600 font-medium mb-1">Name</label>
-//           <input
-//             type="text"
-//             name="name"
-//             value={formData.name}
-//             onChange={handleChange}
-//             required
-//             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-//           />
-//         </div>
-
-//         <div>
-//           <label className="block text-gray-600 font-medium mb-1">Serial No</label>
-//           <input
-//             type="text"
-//             name="serial_no"
-//             value={formData.serial_no}
-//             onChange={handleChange}
-//             required
-//             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-//           />
-//         </div>
-
-//         <div>
-//           <label className="block text-gray-600 font-medium mb-1">Description</label>
-//           <textarea
-//             name="description"
-//             value={formData.description}
-//             onChange={handleChange}
-//             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-//           />
-//         </div>
-
-//         <div>
-//           <label className="block text-gray-600 font-medium mb-1">Quantity</label>
-//           <input
-//             type="number"
-//             name="quantity"
-//             value={formData.quantity}
-//             onChange={handleChange}
-//             required
-//             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-//           />
-//         </div>
-
-//         <div className="flex items-center">
-//           <input
-//             type="checkbox"
-//             name="is_available"
-//             checked={formData.is_available}
-//             onChange={handleChange}
-//             className="mr-2"
-//           />
-//           <label className="text-gray-600 font-medium">Available</label>
-//         </div>
-
-//         <button
-//           type="submit"
-//           className="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-200"
-//         >
-//           Update Item
-//         </button>
-//       </form>
-//     </div>
-//   );
-// };
-
-// export default UpdateItem;
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
-import { FiSave, FiArrowLeft } from 'react-icons/fi';
-import Footer from "../../components/Footer/Footer";
+// module.exports = { updateItem };
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const UpdateItem = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: '',
-    serial_no: '',
-    description: '',
-    quantity: '',
-    is_available: true,
+
+  const [itemData, setItemData] = useState({
+    Name: "",
+    Model: "",
+    TotalQty: 0,
+    ShelfNumber: "",
+    UnitPriceBirr: 0,
+    UnitPriceCent: 0,
+    Remark: "",
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
-  // Cal Poly color scheme
-  const calPolyGreen = '#154734';
-  const calPolyGold = '#C4820E';
-  const calPolyLightGreen = '#E6F2E9';
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
+  // Fetch item data by ID
   useEffect(() => {
     const fetchItem = async () => {
       try {
-        setLoading(true);
-        const res = await axios.get(`http://localhost:5000/api/items/items/${id}`);
-        const item = res.data;
-        setFormData({
-          name: item.name || '',
-          serial_no: item.serial_no || '',
-          description: item.description || '',
-          quantity: item.quantity || '',
-          is_available: item.is_available === 1 || item.is_available === true,
-        });
-      } catch (error) {
-        console.error('Error fetching item:', error.message);
-        setError('Failed to fetch item details');
-      } finally {
+        const response = await axios.get(`http://localhost:5000/api/items/items/${id}`);
+        const { ItemName, Model, TotalQty, ShelfNumber, UnitPriceBirr, UnitPriceCent, Remark } = response.data;
+        setItemData({ Name: ItemName, Model, TotalQty, ShelfNumber, UnitPriceBirr, UnitPriceCent, Remark });
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setError(err.response?.data?.message || err.message);
         setLoading(false);
       }
     };
-
     fetchItem();
   }, [id]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+    const { name, value } = e.target;
+    setItemData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
-      setError('');
-      await axios.put(`http://localhost:5000/api/items/items/${id}`, formData);
-      navigate('/Clerk/item-managment');
-    } catch (error) {
-      console.error('Error updating item:', error.message);
-      setError(error.response?.data?.message || 'Failed to update item');
-    } finally {
-      setLoading(false);
+      await axios.put(`http://localhost:5000/api/items/items/${id}`, itemData);
+      alert("Item updated successfully");
+      navigate("/clerk"); // redirect back to clerk page
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || err.message);
     }
   };
 
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="flex-grow">
-        {/* Header */}
-        <div 
-          className="bg-white shadow-sm py-4 px-6"
-          style={{ borderBottom: `3px solid ${calPolyGold}` }}
-        >
-          <div className="max-w-4xl mx-auto flex justify-between items-center">
-            <button 
-              onClick={() => navigate('/Clerk/item-managment')}
-              className="flex items-center text-gray-700 hover:text-gray-900"
-              style={{ color: calPolyGreen }}
-            >
-              <FiArrowLeft className="mr-1" /> Back to Inventory
-            </button>
-            <h1 
-              className="text-2xl font-bold"
-              style={{ color: calPolyGreen }}
-            >
-              Update Inventory Item
-            </h1>
-            <div className="w-24"></div> {/* Spacer for alignment */}
+    <div className="min-h-screen bg-gray-100 p-6 flex justify-center">
+      <div className="bg-white p-6 rounded shadow-md w-full max-w-md">
+        <h2 className="text-2xl font-semibold mb-4">Update Item</h2>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <label className="block font-medium">Name</label>
+            <input
+              type="text"
+              name="Name"
+              value={itemData.Name}
+              onChange={handleChange}
+              className="w-full border px-2 py-1 rounded"
+              required
+            />
           </div>
-        </div>
+          <div>
+            <label className="block font-medium">Model</label>
+            <input
+              type="text"
+              name="Model"
+              value={itemData.Model}
+              onChange={handleChange}
+              className="w-full border px-2 py-1 rounded"
+              required
+            />
+          </div>
+          <div>
+            <label className="block font-medium">Total Quantity</label>
+            <input
+              type="number"
+              name="TotalQty"
+              value={itemData.TotalQty}
+              onChange={handleChange}
+              className="w-full border px-2 py-1 rounded"
+              min={1}
+              required
+            />
+          </div>
+          <div>
+            <label className="block font-medium">Shelf Number</label>
+            <input
+              type="text"
+              name="ShelfNumber"
+              value={itemData.ShelfNumber}
+              onChange={handleChange}
+              className="w-full border px-2 py-1 rounded"
+            />
+          </div>
+          <div>
+            <label className="block font-medium">Unit Price Birr</label>
+            <input
+              type="number"
+              name="UnitPriceBirr"
+              value={itemData.UnitPriceBirr}
+              onChange={handleChange}
+              className="w-full border px-2 py-1 rounded"
+              min={0}
+              required
+            />
+          </div>
+          <div>
+            <label className="block font-medium">Unit Price Cent</label>
+            <input
+              type="number"
+              name="UnitPriceCent"
+              value={itemData.UnitPriceCent}
+              onChange={handleChange}
+              className="w-full border px-2 py-1 rounded"
+              min={0}
+              max={99}
+              required
+            />
+          </div>
+          <div>
+            <label className="block font-medium">Remark</label>
+            <input
+              type="text"
+              name="Remark"
+              value={itemData.Remark}
+              onChange={handleChange}
+              className="w-full border px-2 py-1 rounded"
+            />
+          </div>
 
-        {/* Main Content */}
-        <div className="max-w-4xl mx-auto py-8 px-4">
-          <div 
-            className="bg-white rounded-xl shadow-md overflow-hidden"
-            style={{ borderTop: `4px solid ${calPolyGreen}` }}
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
           >
-            {loading && !formData.name ? (
-              <div className="flex justify-center items-center p-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2" style={{ borderColor: calPolyGreen }}></div>
-              </div>
-            ) : (
-              <>
-                {/* Error Message */}
-                {error && (
-                  <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">
-                    <p>{error}</p>
-                  </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-gray-700 font-medium mb-2">Item Name*</label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                        style={{ borderColor: calPolyGreen }}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-gray-700 font-medium mb-2">Serial Number*</label>
-                      <input
-                        type="text"
-                        name="serial_no"
-                        value={formData.serial_no}
-                        onChange={handleChange}
-                        required
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                        style={{ borderColor: calPolyGreen }}
-                      />
-                    </div>
-
-                    <div className="md:col-span-2">
-                      <label className="block text-gray-700 font-medium mb-2">Description</label>
-                      <textarea
-                        name="description"
-                        value={formData.description}
-                        onChange={handleChange}
-                        rows={3}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                        style={{ borderColor: calPolyGreen }}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-gray-700 font-medium mb-2">Quantity*</label>
-                      <input
-                        type="number"
-                        name="quantity"
-                        value={formData.quantity}
-                        onChange={handleChange}
-                        min="1"
-                        required
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                        style={{ borderColor: calPolyGreen }}
-                      />
-                    </div>
-
-                    <div className="flex items-center">
-                      <div className="flex items-center h-full">
-                        <input
-                          type="checkbox"
-                          name="is_available"
-                          checked={formData.is_available}
-                          onChange={handleChange}
-                          className="h-5 w-5 rounded"
-                          style={{ borderColor: calPolyGreen, color: calPolyGreen }}
-                        />
-                        <label className="ml-2 text-gray-700 font-medium">Available in Inventory</label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end space-x-4 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => navigate('/Clerk/item-managment')}
-                      className="px-6 py-2 border rounded-lg font-medium"
-                      style={{ borderColor: calPolyGreen, color: calPolyGreen }}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="px-6 py-2 rounded-lg font-medium text-white flex items-center"
-                      style={{ 
-                        backgroundColor: loading ? '#9CA3AF' : calPolyGreen,
-                        cursor: loading ? 'not-allowed' : 'pointer'
-                      }}
-                    >
-                      {loading ? (
-                        'Saving...'
-                      ) : (
-                        <>
-                          <FiSave className="mr-2" /> Save Changes
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </>
-            )}
-          </div>
-        </div>
+            Update Item
+          </button>
+        </form>
       </div>
-
-      {/* Footer */}
-      <Footer 
-        backgroundColor={calPolyGreen}
-        textColor="#FFFFFF"
-      />
     </div>
   );
 };

@@ -447,7 +447,6 @@
 // };
 
 // export default GiveItemToStaff;
-// corect  one
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';

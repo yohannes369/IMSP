@@ -76,39 +76,49 @@
 //             <ul className="space-y-2">
 //               {menuItems.map((item) => (
 //                 <li key={item.path} className="relative">
-//                   <Link
-//                     to={item.path}
-//                     className={`flex items-center px-4 py-3 rounded-lg transition-colors
-//                       ${location.pathname === item.path 
-//                         ? 'bg-white text-green-800 font-medium' 
-//                         : 'text-white hover:bg-green-700'}`}
-//                     onClick={() => setIsOpen(false)}
-//                   >
-//                     {item.icon}
-//                     {item.name}
+//                   <div className="relative">
+//                     <Link
+//                       to={item.path}
+//                       className={`flex items-center px-4 py-3 rounded-lg transition-colors
+//                         ${location.pathname === item.path 
+//                           ? 'bg-white text-green-800 font-medium' 
+//                           : 'text-white hover:bg-green-700'}`}
+//                       onClick={() => setIsOpen(false)}
+//                     >
+//                       {item.icon}
+//                       {item.name}
 
-//                     {/* Red notification badge */}
-//                     {item.hasNotification && pendingCount > 0 && (
-//                       <span className="absolute right-4 top-3 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
-//                         {pendingCount}
-//                       </span>
+//                       {/* Red notification badge */}
+//                       {item.hasNotification && pendingCount > 0 && (
+//                         <span className="absolute right-4 top-3 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+//                           {pendingCount}
+//                         </span>
+//                       )}
+//                     </Link>
+//                     {/* Horizontal orange line for active item */}
+//                     {location.pathname === item.path && (
+//                       <div 
+//                         className="absolute bottom-0 left-0 right-0 h-1"
+//                         style={{ backgroundColor: calPolyGold }}
+//                       />
 //                     )}
-//                   </Link>
+//                   </div>
 //                 </li>
 //               ))}
+
+//               {/* Logout immediately after Requests */}
+//               <li className="relative">
+//                 <Link
+//                   to="/logout"
+//                   className="flex items-center px-4 py-3 rounded-lg text-white hover:bg-green-700 transition-colors"
+//                   onClick={() => setIsOpen(false)}
+//                 >
+//                   <FaSignOutAlt className="mr-2" />
+//                   Logout
+//                 </Link>
+//               </li>
 //             </ul>
 //           </nav>
-
-//           {/* Logout */}
-//           <div className="px-4 py-6 border-t" style={{ borderColor: calPolyGold }}>
-//             <Link
-//               to="/logout"
-//               className="flex items-center px-4 py-3 text-white rounded-lg hover:bg-green-700 transition-colors"
-//             >
-//               <FaSignOutAlt className="mr-2" />
-//               Logout
-//             </Link>
-//           </div>
 //         </div>
 //       </div>
 
@@ -136,9 +146,12 @@ import {
   FaTimes
 } from 'react-icons/fa';
 import axios from 'axios';
+import { io } from 'socket.io-client';
 
 const calPolyGreen = '#154734';
 const calPolyGold = '#C4820E';
+
+const socket = io('http://localhost:5000'); // connect to backend Socket.IO
 
 const ManagerSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -147,19 +160,32 @@ const ManagerSidebar = () => {
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
-  // Fetch pending requests count
+  // Fetch pending requests count from backend
+  const fetchPending = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/requests/manager/pending');
+      setPendingCount(res.data.length || 0);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
-    const fetchPending = async () => {
-      try {
-        const res = await axios.get('http://localhost:5000/api/requests/manager/pending');
-        setPendingCount(res.data.length || 0);
-      } catch (err) {
-        console.error(err);
-      }
-    };
     fetchPending();
     const interval = setInterval(fetchPending, 10000); // refresh every 10s
     return () => clearInterval(interval);
+  }, []);
+
+  // Listen for real-time new requests
+  useEffect(() => {
+    const handleNewRequest = () => {
+      setPendingCount(prev => prev + 1);
+    };
+    socket.on('new_request', handleNewRequest);
+
+    return () => {
+      socket.off('new_request', handleNewRequest);
+    };
   }, []);
 
   const menuItems = [
@@ -211,13 +237,14 @@ const ManagerSidebar = () => {
                       {item.icon}
                       {item.name}
 
-                      {/* Red notification badge */}
+                      {/* Red notification badge for pending requests */}
                       {item.hasNotification && pendingCount > 0 && (
                         <span className="absolute right-4 top-3 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
                           {pendingCount}
                         </span>
                       )}
                     </Link>
+
                     {/* Horizontal orange line for active item */}
                     {location.pathname === item.path && (
                       <div 
@@ -229,7 +256,7 @@ const ManagerSidebar = () => {
                 </li>
               ))}
 
-              {/* Logout immediately after Requests */}
+              {/* Logout */}
               <li className="relative">
                 <Link
                   to="/logout"
