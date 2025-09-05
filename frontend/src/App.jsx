@@ -92,7 +92,7 @@ const App = () => {
         <Route path="Clerk/return" element={<ClerkPendingReturns />} />
          <Route path="staffname" element={<StaffName />} />
          <Route path="issueitemform" element={<IssueItemForm />} />
-          <Route path="m" element={<Model22FormList />} />
+          <Route path="model22formlist" element={<Model22FormList />} />
          
                {/* <Route path="/for" element={<ForecastItem />} /> */}
         <Route path="/report" element={<ClerkReportDashboard />} />
