@@ -151,7 +151,7 @@ exports.changeUserRole = async (req, res) => {
   try {
     const { email, role } = req.body;
 
-    const allowedRoles = ['admin', 'manager', 'staff', 'clerk'];
+    const allowedRoles = ['admin', 'manager', 'staff', 'clerk', 'ict']; // Allow empty string to remove role
     if (!allowedRoles.includes(role)) {
       return res.status(400).json({ message: 'Invalid role specified' });
     }

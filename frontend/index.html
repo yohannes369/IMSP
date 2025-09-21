@@ -1,4 +1,4 @@
-<!doctype html>
+<!-- <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -8,6 +8,98 @@
   </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html> -->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Title -->
+    <title>Inventory Management System | Smart Stock Control</title>
+
+    <!-- Favicon / Icons -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="https://img.icons8.com/fluency/32/warehouse.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="https://img.icons8.com/fluency/16/warehouse.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="https://img.icons8.com/fluency/180/warehouse.png"
+    />
+
+    <!-- ✅ Correct manifest file (must be JSON, not PNG) -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Inventory Management System" />
+    <meta
+      name="description"
+      content="A modern Inventory Management System to manage stock, track requests, generate reports, and streamline workflows with real-time updates."
+    />
+    <meta
+      name="keywords"
+      content="inventory management system, stock control, warehouse, inventory software, IMS, asset tracking"
+    />
+    <meta name="author" content="Your Name or Company" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://inventorymanagmnetsystem.com/" />
+    <meta
+      property="og:title"
+      content="Inventory Management System | Smart Stock Control"
+    />
+    <meta
+      property="og:description"
+      content="Manage inventory, track items, and generate reports with the Inventory Management System."
+    />
+    <meta
+      property="og:image"
+      content="https://yourdomain.com/icons/og-image.png"
+    />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://yourdomain.com/" />
+    <meta
+      property="twitter:title"
+      content="Inventory Management System | Smart Stock Control"
+    />
+    <meta
+      property="twitter:description"
+      content="A modern Inventory Management System to manage stock, track requests, generate reports, and streamline workflows."
+    />
+    <meta
+      property="twitter:image"
+      content="https://yourdomain.com/icons/og-image.png"
+    />
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <!-- Vite React Preamble (Fixes plugin-react error) -->
+    <script type="module">
+      import RefreshRuntime from "/@react-refresh";
+      RefreshRuntime.injectIntoGlobalHook(window);
+      window.$RefreshReg$ = () => {};
+      window.$RefreshSig$ = () => (type) => type;
+      window.__vite_plugin_react_preamble_installed__ = true;
+    </script>
+
+    <!-- Main React Entry -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
