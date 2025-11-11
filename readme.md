@@ -69,7 +69,6 @@ The system has **6 main roles**, each with specific privileges and workflows.
 
 ## 🔄 System Workflow
 
-```mermaid
 flowchart TD
     A[Staff Registration] --> B[Email Verification]
     B --> C[Two-Factor Authentication]
@@ -104,5 +103,4 @@ cd IMS
 
 
 👨‍💻 Author
-
 👤 Yohannes Yeneakal Teshome
